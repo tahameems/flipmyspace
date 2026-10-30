@@ -13,11 +13,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey =
+      process.env.GEMINI_API_KEY ||
+      body.apiKey ||
+      req.headers.get("x-gemini-api-key");
+
     if (!apiKey) {
       return NextResponse.json(
-        { error: "GEMINI_API_KEY is not configured in .env.local." },
-        { status: 500 }
+        {
+          error:
+            "Gemini API key is not configured on the server. Please add GEMINI_API_KEY in your Vercel Project Settings > Environment Variables, or enter your Gemini API key in the Staging Studio settings.",
+          isApiKeyMissing: true,
+        },
+        { status: 401 }
       );
     }
 

@@ -26,7 +26,8 @@ import {
   HeartHandshake,
   Compass,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Key
 } from "lucide-react";
 
 interface StyleOption {
@@ -201,6 +202,37 @@ export default function Home() {
   const resultsRef = useRef<HTMLDivElement | null>(null);
   const carouselRef = useRef<HTMLDivElement | null>(null);
 
+  // Client-configurable API key for live Vercel deployments
+  const [customApiKey, setCustomApiKey] = useState<string>("");
+  const [showApiKeyModal, setShowApiKeyModal] = useState<boolean>(false);
+  const [apiKeyInput, setApiKeyInput] = useState<string>("");
+  const [isApiKeyMissing, setIsApiKeyMissing] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedKey = localStorage.getItem("flipmyspace_gemini_key");
+      if (savedKey) {
+        setCustomApiKey(savedKey);
+        setApiKeyInput(savedKey);
+      }
+    }
+  }, []);
+
+  const saveApiKey = (keyToSave: string) => {
+    const trimmed = keyToSave.trim();
+    setCustomApiKey(trimmed);
+    if (typeof window !== "undefined") {
+      if (trimmed) {
+        localStorage.setItem("flipmyspace_gemini_key", trimmed);
+      } else {
+        localStorage.removeItem("flipmyspace_gemini_key");
+      }
+    }
+    setShowApiKeyModal(false);
+    setIsApiKeyMissing(false);
+    setErrorMessage(null);
+  };
+
   const scrollCarousel = (direction: "left" | "right") => {
     if (carouselRef.current) {
       const scrollAmount = direction === "left" ? -380 : 380;
@@ -348,12 +380,20 @@ export default function Home() {
           imageBase64: imagePreview,
           style: selectedStyle,
           roomType: selectedRoomType,
+          apiKey: customApiKey || undefined,
         }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
+        if (data.isApiKeyMissing) {
+          setIsApiKeyMissing(true);
+          setShowApiKeyModal(true);
+          setErrorMessage("Gemini API Key required: Configure your key in Settings below or in your Vercel Dashboard.");
+          return;
+        }
+
         if (data.isQuotaError) {
           setIsQuotaExceeded(true);
           setQuotaDetails({
@@ -703,18 +743,101 @@ export default function Home() {
 
       {/* Main Staging Studio */}
       <section ref={studioRef} className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full border-t border-[#e8e2d5]">
-        <div className="max-w-2xl mb-10">
-          <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#8c3817] uppercase tracking-wider mb-1">
-            <Sparkles className="w-3.5 h-3.5 text-[#c25e37]" />
-            <span>Interactive Staging Studio</span>
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#8c3817] uppercase tracking-wider mb-1">
+              <Sparkles className="w-3.5 h-3.5 text-[#c25e37]" />
+              <span>Interactive Staging Studio</span>
+            </div>
+            <h2 className="text-3xl font-extrabold tracking-tight text-[#1c1917]">
+              Stage Your Space in Three Steps
+            </h2>
+            <p className="mt-1 text-sm text-[#57534e]">
+              Select your room photo, specify the room type and desired aesthetic, then generate your staged design.
+            </p>
           </div>
-          <h2 className="text-3xl font-extrabold tracking-tight text-[#1c1917]">
-            Stage Your Space in Three Steps
-          </h2>
-          <p className="mt-1 text-sm text-[#57534e]">
-            Select your room photo, specify the room type and desired aesthetic, then generate your staged design.
-          </p>
+
+          <div>
+            <button
+              onClick={() => setShowApiKeyModal(!showApiKeyModal)}
+              type="button"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[#e8e2d5] bg-white hover:bg-[#f4efe6] text-xs font-semibold text-[#57534e] hover:text-[#1c1917] transition shadow-sm"
+            >
+              <Key className="w-3.5 h-3.5 text-[#c25e37]" />
+              <span>{customApiKey ? "Gemini Key Configured ✓" : "Configure Gemini API Key"}</span>
+            </button>
+          </div>
         </div>
+
+        {/* Gemini API Key Configuration Card */}
+        {showApiKeyModal && (
+          <div className="mb-8 p-6 rounded-2xl bg-white border-2 border-[#c25e37]/40 shadow-md space-y-4">
+            <div className="flex items-start justify-between gap-4 border-b border-[#e8e2d5] pb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-[#f4efe6] text-[#c25e37] flex items-center justify-center font-bold text-xs border border-[#e8e2d5]">
+                  <Key className="w-4 h-4 text-[#c25e37]" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-[#1c1917]">
+                    Gemini API Key Configuration
+                  </h3>
+                  <p className="text-xs text-[#57534e]">
+                    Configure your Google Gemini API key to run staging directly on Vercel or localhost.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowApiKeyModal(false)}
+                className="text-xs text-[#78716c] hover:text-[#1c1917] font-semibold"
+              >
+                &times;
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div className="text-xs text-[#57534e] leading-relaxed">
+                <p>
+                  <strong>Direct Browser Staging:</strong> Paste your Google AI Studio Gemini API Key below. It is stored securely in your browser and sent with your staging requests.
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-2.5">
+                <input
+                  type="password"
+                  placeholder="Paste your Gemini API key (AQ.Ab... or AIza...)"
+                  value={apiKeyInput}
+                  onChange={(e) => setApiKeyInput(e.target.value)}
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-[#e8e2d5] text-xs font-mono bg-[#faf7f2] focus:outline-none focus:border-[#c25e37] text-[#1c1917]"
+                />
+                <button
+                  type="button"
+                  onClick={() => saveApiKey(apiKeyInput)}
+                  className="px-5 py-2.5 rounded-xl bg-[#c25e37] hover:bg-[#a84e2b] text-white text-xs font-semibold shadow-sm transition whitespace-nowrap"
+                >
+                  Save Key
+                </button>
+                {customApiKey && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setApiKeyInput("");
+                      saveApiKey("");
+                    }}
+                    className="px-4 py-2.5 rounded-xl border border-[#e8e2d5] bg-white hover:bg-[#f4efe6] text-xs font-semibold text-[#78716c] transition"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-[#faf7f2] border border-[#e8e2d5] text-[11px] text-[#57534e] leading-relaxed">
+                <p>
+                  <strong>Permanent Vercel Server Setup:</strong> In your <a href="https://vercel.com/dashboard" target="_blank" rel="noreferrer" className="text-[#c25e37] underline font-semibold">Vercel Project Dashboard</a>, go to <em>Settings &rarr; Environment Variables</em>, add Key: <code>GEMINI_API_KEY</code>, check <em>Production</em>, <em>Preview</em>, and <em>Development</em>, and click Redeploy.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Global Error Notice */}
         {errorMessage && (
