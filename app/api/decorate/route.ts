@@ -172,3 +172,19 @@ STRICT ARCHITECTURAL CONSTRAINTS:
     );
   }
 }
+
+export async function GET() {
+  const hasServerKey = Boolean(
+    process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim().length > 0
+  );
+  const keyPrefix = hasServerKey
+    ? `${process.env.GEMINI_API_KEY!.slice(0, 5)}...${process.env.GEMINI_API_KEY!.slice(-4)}`
+    : null;
+
+  return NextResponse.json({
+    status: "ok",
+    hasServerKey,
+    keyPrefix,
+    environment: process.env.VERCEL_ENV || process.env.NODE_ENV || "development",
+  });
+}

@@ -207,6 +207,8 @@ export default function Home() {
   const [showApiKeyModal, setShowApiKeyModal] = useState<boolean>(false);
   const [apiKeyInput, setApiKeyInput] = useState<string>("");
   const [isApiKeyMissing, setIsApiKeyMissing] = useState<boolean>(false);
+  const [hasServerKey, setHasServerKey] = useState<boolean | null>(null);
+  const [serverKeyPrefix, setServerKeyPrefix] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -215,6 +217,18 @@ export default function Home() {
         setCustomApiKey(savedKey);
         setApiKeyInput(savedKey);
       }
+
+      fetch("/api/decorate")
+        .then((res) => res.json())
+        .then((data) => {
+          setHasServerKey(Boolean(data.hasServerKey));
+          if (data.keyPrefix) {
+            setServerKeyPrefix(data.keyPrefix);
+          }
+        })
+        .catch(() => {
+          setHasServerKey(false);
+        });
     }
   }, []);
 
@@ -761,10 +775,25 @@ export default function Home() {
             <button
               onClick={() => setShowApiKeyModal(!showApiKeyModal)}
               type="button"
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[#e8e2d5] bg-white hover:bg-[#f4efe6] text-xs font-semibold text-[#57534e] hover:text-[#1c1917] transition shadow-sm"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[#e8e2d5] bg-white hover:bg-[#f4efe6] text-xs font-semibold transition shadow-sm"
             >
               <Key className="w-3.5 h-3.5 text-[#c25e37]" />
-              <span>{customApiKey ? "Gemini Key Configured ✓" : "Configure Gemini API Key"}</span>
+              {hasServerKey ? (
+                <span className="flex items-center gap-1.5 text-emerald-800">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                  <span>Server Key Active ({serverKeyPrefix})</span>
+                </span>
+              ) : customApiKey ? (
+                <span className="flex items-center gap-1.5 text-emerald-800">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                  <span>Browser Key Active</span>
+                </span>
+              ) : (
+                <span className="flex items-center gap-1.5 text-[#8c3817]">
+                  <span className="w-2 h-2 rounded-full bg-[#c25e37] animate-pulse" />
+                  <span>Configure Gemini Key</span>
+                </span>
+              )}
             </button>
           </div>
         </div>
@@ -792,6 +821,32 @@ export default function Home() {
               >
                 &times;
               </button>
+            </div>
+
+            {/* Live Server Detection Status */}
+            <div className={`p-3.5 rounded-xl border text-xs leading-relaxed ${
+              hasServerKey
+                ? "bg-emerald-50/80 border-emerald-200 text-emerald-900"
+                : "bg-amber-50/80 border-amber-200 text-amber-900"
+            }`}>
+              {hasServerKey ? (
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 flex-shrink-0" />
+                  <span>
+                    <strong>Vercel Server Key Connected:</strong> <code>{serverKeyPrefix}</code> is actively loaded in this deployment.
+                  </span>
+                </div>
+              ) : (
+                <div>
+                  <div className="flex items-center gap-2 font-bold mb-1">
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500 flex-shrink-0" />
+                    <span>Server Environment Variable Not Detected in Current Deployment</span>
+                  </div>
+                  <p className="text-[11px] text-amber-800">
+                    If you added <code>GEMINI_API_KEY</code> in Vercel Settings, Vercel requires a <strong>Redeploy</strong> to inject it into live containers. Either paste your key below for instant access, or click Redeploy in your Vercel Deployments dashboard.
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="space-y-3">
