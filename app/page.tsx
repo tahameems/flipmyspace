@@ -224,6 +224,9 @@ export default function Home() {
           setHasServerKey(Boolean(data.hasServerKey));
           if (data.keyPrefix) {
             setServerKeyPrefix(data.keyPrefix);
+            // Hide modal because server key is already active in Vercel!
+            setShowApiKeyModal(false);
+            setIsApiKeyMissing(false);
           }
         })
         .catch(() => {
@@ -287,30 +290,75 @@ export default function Home() {
     }
   }, [isLoading, selectedStyle]);
 
-  const handleFile = (file: File) => {
+  // Client-side image compression to guarantee payloads stay safely below Vercel's 4.5MB limit
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new window.Image();
+        img.onload = () => {
+          const maxDim = 1536; // 1536px provides pin-sharp resolution for Gemini vision while keeping payload < 500KB
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) {
+            resolve(e.target?.result as string);
+            return;
+          }
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL("image/jpeg", 0.82));
+        };
+        img.onerror = () => resolve(e.target?.result as string);
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = () => resolve("");
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleFile = async (file: File) => {
     if (!file.type.match(/^image\/(jpeg|png|webp)$/)) {
       setErrorMessage("Please upload an image in JPEG, PNG, or WebP format.");
-      return;
-    }
-
-    if (file.size > 14 * 1024 * 1024) {
-      setErrorMessage("Image is larger than 14MB. Please select a smaller photo.");
       return;
     }
 
     setErrorMessage(null);
     setImageFile(file);
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setImagePreview(e.target?.result as string);
+    try {
+      const optimizedBase64 = await compressImage(file);
+      setImagePreview(optimizedBase64);
       setGeneratedImage(null);
       setRoomAnalysis(null);
       setGenerationNotice(null);
       setIsQuotaExceeded(false);
       setQuotaDetails(null);
-    };
-    reader.readAsDataURL(file);
+    } catch {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+        setGeneratedImage(null);
+        setRoomAnalysis(null);
+        setGenerationNotice(null);
+        setIsQuotaExceeded(false);
+        setQuotaDetails(null);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const loadSample = async (sampleIndex: number) => {
@@ -322,17 +370,15 @@ export default function Home() {
     try {
       const response = await fetch(sample.empty);
       const blob = await response.blob();
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-        setGeneratedImage(null);
-        setRoomAnalysis(null);
-        setGenerationNotice(null);
-        setIsQuotaExceeded(false);
-        setQuotaDetails(null);
-        studioRef.current?.scrollIntoView({ behavior: "smooth" });
-      };
-      reader.readAsDataURL(blob);
+      const file = new File([blob], "sample.jpg", { type: "image/jpeg" });
+      const optimized = await compressImage(file);
+      setImagePreview(optimized);
+      setGeneratedImage(null);
+      setRoomAnalysis(null);
+      setGenerationNotice(null);
+      setIsQuotaExceeded(false);
+      setQuotaDetails(null);
+      studioRef.current?.scrollIntoView({ behavior: "smooth" });
     } catch {
       setImagePreview(sample.empty);
       studioRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -398,17 +444,27 @@ export default function Home() {
         }),
       });
 
-      const data = await response.json();
+      let data: any = null;
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        const rawText = await response.text().catch(() => "");
+        if (response.status === 413 || rawText.includes("Request Entity Too Large")) {
+          throw new Error("The uploaded image exceeded transfer limits. We have enabled auto-compression—please re-select your photo and click Stage Space.");
+        }
+        throw new Error(rawText || `Server responded with status ${response.status}`);
+      }
 
       if (!response.ok) {
-        if (data.isApiKeyMissing) {
+        if (data?.isApiKeyMissing && !hasServerKey) {
           setIsApiKeyMissing(true);
           setShowApiKeyModal(true);
           setErrorMessage("Gemini API Key required: Configure your key in Settings below or in your Vercel Dashboard.");
           return;
         }
 
-        if (data.isQuotaError) {
+        if (data?.isQuotaError) {
           setIsQuotaExceeded(true);
           setQuotaDetails({
             help: data.helpMessage,
@@ -420,7 +476,7 @@ export default function Home() {
           }
           return;
         }
-        throw new Error(data.error || "Failed to stage room. Please try again.");
+        throw new Error(data?.error || "Failed to stage room. Please try again.");
       }
 
       setGeneratedImage(data.imageUrl);

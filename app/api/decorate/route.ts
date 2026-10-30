@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 
+export const maxDuration = 60; // Allow sufficient time for multimodal AI staging
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
