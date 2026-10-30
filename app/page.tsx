@@ -29,6 +29,7 @@ import {
   ChevronRight,
   Key
 } from "lucide-react";
+import EeraAssistant from "./components/EeraAssistant";
 
 interface StyleOption {
   id: string;
@@ -492,6 +493,82 @@ export default function Home() {
       }, 300);
     } catch (err: any) {
       setErrorMessage(err.message || "An unexpected error occurred while processing your room.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleApplyRefinement = async (refinement: {
+    modificationsRequested: string;
+    elementsToRetain: string;
+    promptModifiers: string;
+  }) => {
+    if (!imagePreview) {
+      setErrorMessage("Please select or upload a room photo first to apply refinements.");
+      studioRef.current?.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMessage(null);
+    setGeneratedImage(null);
+    setGenerationNotice(`Refining with Eera: ${refinement.modificationsRequested}`);
+    setIsQuotaExceeded(false);
+    setQuotaDetails(null);
+
+    try {
+      const response = await fetch("/api/decorate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          imageBase64: imagePreview,
+          style: selectedStyle,
+          roomType: selectedRoomType,
+          apiKey: customApiKey || undefined,
+          refinementNotes: refinement.modificationsRequested,
+          elementsToRetain: refinement.elementsToRetain,
+          promptModifiers: refinement.promptModifiers,
+        }),
+      });
+
+      let data: any = null;
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        const rawText = await response.text().catch(() => "");
+        throw new Error(rawText || `Server responded with status ${response.status}`);
+      }
+
+      if (!response.ok) {
+        if (data?.isQuotaError) {
+          setIsQuotaExceeded(true);
+          setQuotaDetails({
+            help: data.helpMessage,
+            billingUrl: data.billingUrl,
+            analysis: data.analysis,
+          });
+          if (data.analysis) {
+            setRoomAnalysis(data.analysis);
+          }
+          return;
+        }
+        throw new Error(data?.error || "Failed to refine room design.");
+      }
+
+      setGeneratedImage(data.imageUrl);
+      if (data.analysis) {
+        setRoomAnalysis(data.analysis);
+      }
+      setGenerationNotice(`Refined with Eera (${refinement.modificationsRequested})`);
+
+      setTimeout(() => {
+        resultsRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 300);
+    } catch (err: any) {
+      setErrorMessage(err.message || "An unexpected error occurred while refining your room.");
     } finally {
       setIsLoading(false);
     }
@@ -1545,6 +1622,16 @@ export default function Home() {
           </div>
         </div>
       </footer>
+      {/* Floating Eera AI Design Assistant */}
+      <EeraAssistant
+        selectedStyle={selectedStyle}
+        selectedRoomType={selectedRoomType}
+        generatedImage={generatedImage}
+        roomAnalysis={roomAnalysis}
+        customApiKey={customApiKey}
+        onApplyRefinement={handleApplyRefinement}
+        isRegenerating={isLoading}
+      />
     </div>
   );
 }

@@ -6,7 +6,14 @@ export const maxDuration = 60; // Allow sufficient time for multimodal AI stagin
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { imageBase64, style, roomType } = body;
+    const {
+      imageBase64,
+      style,
+      roomType,
+      refinementNotes,
+      promptModifiers,
+      elementsToRetain,
+    } = body;
 
     if (!imageBase64) {
       return NextResponse.json(
@@ -81,7 +88,7 @@ Respond in 2-3 concise architectural sentences.`;
 
     // Step 2: Direct Image-to-Image Staging with Google GenAI
     // We pass the user's actual image inlineData directly to Google's image model
-    const stagingPrompt = `You are a professional architectural virtual staging engine.
+    let stagingPrompt = `You are a professional architectural virtual staging engine.
 Take this EXACT input photo of an empty room and stage it with ${selectedStyle} interior decor for a ${selectedRoom}.
 
 STRICT ARCHITECTURAL CONSTRAINTS:
@@ -89,6 +96,16 @@ STRICT ARCHITECTURAL CONSTRAINTS:
 - Keep the exact walls, flooring material and perspective, window frames, door locations, and ceiling height from this input image completely unchanged.
 - Seamlessly place authentic ${selectedStyle} furniture into the empty floor space: sofa/seating, coffee table, area rug, lighting, indoor plants, and wall decor that match the perspective and natural light of the uploaded room.
 - Photorealistic 8K, architectural digest standard, perfect perspective alignment.`;
+
+    if (elementsToRetain) {
+      stagingPrompt += `\n- PRESERVED ELEMENTS (DO NOT ALTER): ${elementsToRetain}`;
+    }
+    if (refinementNotes) {
+      stagingPrompt += `\n- TARGETED USER REFINEMENTS: ${refinementNotes}`;
+    }
+    if (promptModifiers) {
+      stagingPrompt += `\n- TARGET AESTHETIC MODIFIERS: ${promptModifiers}`;
+    }
 
     let stagedImageBase64: string | null = null;
     let googleErrorMessage: string | null = null;
