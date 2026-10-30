@@ -16,52 +16,14 @@ import {
   RotateCcw
 } from "lucide-react";
 
-// Friendly Abstract Face Logo (Bauhaus-inspired warm geometric face)
-export function AbstractFace({ className = "w-7 h-7" }: { className?: string }) {
+// Eera Assistant Official Logo
+export function EeraLogo({ className = "w-7 h-7" }: { className?: string }) {
   return (
-    <svg
-      viewBox="0 0 100 100"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-      aria-label="Eera Abstract Face Logo"
-    >
-      {/* Soft rounded head silhouette */}
-      <circle cx="50" cy="50" r="46" fill="#fcf7ee" stroke="#1c1917" strokeWidth="3" />
-      {/* Warm terracotta blush circle */}
-      <circle cx="72" cy="54" r="14" fill="#c25e37" opacity="0.25" />
-      <circle cx="28" cy="54" r="14" fill="#c25e37" opacity="0.25" />
-      {/* Friendly abstract curved eyes */}
-      <path
-        d="M32 44 Q40 38 46 44"
-        stroke="#1c1917"
-        strokeWidth="4"
-        strokeLinecap="round"
-      />
-      <path
-        d="M54 44 Q60 38 68 44"
-        stroke="#1c1917"
-        strokeWidth="4"
-        strokeLinecap="round"
-      />
-      {/* Gentle abstract nose line */}
-      <path
-        d="M50 42 L48 57 L54 57"
-        stroke="#c25e37"
-        strokeWidth="3.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      {/* Warm confident smile curve */}
-      <path
-        d="M38 68 Q50 78 62 68"
-        stroke="#1c1917"
-        strokeWidth="4"
-        strokeLinecap="round"
-      />
-      {/* Small beauty dot / subtle artistic accent */}
-      <circle cx="67" cy="62" r="2.5" fill="#c25e37" />
-    </svg>
+    <img
+      src="/eera-logo.jpg"
+      alt="I'm Eera"
+      className={`rounded-full object-cover shadow-sm ${className}`}
+    />
   );
 }
 
@@ -372,11 +334,11 @@ export default function EeraAssistant({
             onClick={() => setIsOpen(true)}
             type="button"
             aria-label="Open Eera AI Design Assistant"
-            className="w-14 h-14 rounded-full bg-[#ffffff] hover:bg-[#faf7f2] border-2 border-[#c25e37] text-[#1c1917] flex items-center justify-center shadow-xl transition-all duration-300 hover:scale-105 group active:scale-95"
+            className="w-14 h-14 rounded-full bg-[#1c1917] hover:bg-[#2e2926] border-2 border-[#c25e37] text-[#1c1917] flex items-center justify-center shadow-xl transition-all duration-300 hover:scale-105 group active:scale-95 overflow-hidden p-0.5"
           >
-            <div className="relative">
-              <AbstractFace className="w-9 h-9" />
-              <span className={`absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-white ${
+            <div className="relative w-full h-full">
+              <EeraLogo className="w-full h-full" />
+              <span className={`absolute top-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-white ${
                 hasGeneratedImage ? "bg-emerald-500 animate-pulse" : "bg-amber-400"
               }`} />
             </div>
@@ -407,8 +369,8 @@ export default function EeraAssistant({
           >
             <div className="flex items-center gap-3">
               <div className="relative flex-shrink-0">
-                <div className="w-10 h-10 rounded-2xl bg-white border border-[#e8e2d5] flex items-center justify-center p-1 shadow-sm">
-                  <AbstractFace className="w-8 h-8" />
+                <div className="w-10 h-10 rounded-2xl bg-[#1c1917] border border-[#e8e2d5] flex items-center justify-center p-0.5 shadow-sm overflow-hidden">
+                  <EeraLogo className="w-full h-full" />
                 </div>
                 <span className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white ${
                   hasGeneratedImage ? "bg-emerald-500" : "bg-amber-400"
@@ -468,8 +430,8 @@ export default function EeraAssistant({
                     >
                       <div className="flex items-start gap-2 max-w-[88%]">
                         {!isUser && (
-                          <div className="w-6 h-6 rounded-full bg-white border border-[#e8e2d5] flex-shrink-0 mt-0.5 overflow-hidden p-0.5 shadow-sm">
-                            <AbstractFace className="w-full h-full" />
+                          <div className="w-6 h-6 rounded-full border border-[#e8e2d5] flex-shrink-0 mt-0.5 overflow-hidden shadow-sm">
+                            <EeraLogo className="w-full h-full" />
                           </div>
                         )}
                         <div
@@ -563,8 +525,8 @@ export default function EeraAssistant({
 
                 {isLoading && (
                   <div className="flex items-center gap-2 text-xs text-[#78716c]">
-                    <div className="w-6 h-6 rounded-full bg-white border border-[#e8e2d5] flex-shrink-0 p-0.5">
-                      <AbstractFace className="w-full h-full" />
+                    <div className="w-6 h-6 rounded-full border border-[#e8e2d5] flex-shrink-0 overflow-hidden shadow-sm">
+                      <EeraLogo className="w-full h-full" />
                     </div>
                     <div className="bg-white px-3.5 py-2 rounded-2xl rounded-tl-none border border-[#e8e2d5] text-[11px] flex items-center gap-1.5 text-[#57534e]">
                       <span className="w-1.5 h-1.5 rounded-full bg-[#c25e37] animate-ping" />

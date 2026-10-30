@@ -267,33 +267,32 @@ export default function Home() {
     studioRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Multi-phase loading status
+  // 3 rotating statements every 2 seconds during image generation
+  const LOADING_STATEMENTS = [
+    "Transforming your space into a new expression—please wait while we bring your vision to life.",
+    "Breathing new life into the rooms you love. Watch your dream space come home",
+    "Every corner has a story—now, let's write its next chapter. Designing your space",
+  ];
+
   useEffect(() => {
     if (isLoading) {
-      setLoadingProgress(15);
-      setLoadingStatus("Measuring room perspective, ceiling elevation & daylight orientation...");
+      setLoadingProgress(18);
+      setLoadingStatus(LOADING_STATEMENTS[0]);
+      let statementIndex = 0;
 
-      const phases = [
-        { at: 2000, prog: 42, text: "Locking wall perimeters, flooring plane & window frames..." },
-        { at: 5000, prog: 72, text: `Arranging ${selectedStyle} furniture with balanced proportion...` },
-        { at: 8500, prog: 90, text: "Simulating authentic ambient lighting & soft shadow falloff..." },
-        { at: 12000, prog: 98, text: "Finalizing high-resolution staging render..." },
-      ];
-
-      const timeouts = phases.map((phase) =>
-        setTimeout(() => {
-          setLoadingProgress(phase.prog);
-          setLoadingStatus(phase.text);
-        }, phase.at)
-      );
+      const interval = setInterval(() => {
+        statementIndex = (statementIndex + 1) % LOADING_STATEMENTS.length;
+        setLoadingStatus(LOADING_STATEMENTS[statementIndex]);
+        setLoadingProgress((prev) => Math.min(prev + 16, 96));
+      }, 2000);
 
       return () => {
-        timeouts.forEach(clearTimeout);
+        clearInterval(interval);
       };
     } else {
       setLoadingProgress(0);
     }
-  }, [isLoading, selectedStyle]);
+  }, [isLoading]);
 
   // Client-side image compression to guarantee payloads stay safely below Vercel's 4.5MB limit
   const compressImage = (file: File): Promise<string> => {
