@@ -30,6 +30,7 @@ import {
   Key
 } from "lucide-react";
 import EeraAssistant from "./components/EeraAssistant";
+import ReliveLogo from "./components/ReliveLogo";
 
 interface StyleOption {
   id: string;
@@ -213,7 +214,9 @@ export default function Home() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const savedKey = localStorage.getItem("flipmyspace_gemini_key");
+      const savedKey =
+        localStorage.getItem("relive_api_key") ||
+        localStorage.getItem("flipmyspace_gemini_key");
       if (savedKey) {
         setCustomApiKey(savedKey);
         setApiKeyInput(savedKey);
@@ -241,8 +244,9 @@ export default function Home() {
     setCustomApiKey(trimmed);
     if (typeof window !== "undefined") {
       if (trimmed) {
-        localStorage.setItem("flipmyspace_gemini_key", trimmed);
+        localStorage.setItem("relive_api_key", trimmed);
       } else {
+        localStorage.removeItem("relive_api_key");
         localStorage.removeItem("flipmyspace_gemini_key");
       }
     }
@@ -267,7 +271,7 @@ export default function Home() {
   useEffect(() => {
     if (isLoading) {
       setLoadingProgress(15);
-      setLoadingStatus("Measuring spatial perspective & natural daylight with Gemini 3.8...");
+      setLoadingStatus("Measuring room perspective, ceiling elevation & daylight orientation...");
 
       const phases = [
         { at: 2000, prog: 42, text: "Locking wall perimeters, flooring plane & window frames..." },
@@ -461,7 +465,7 @@ export default function Home() {
         if (data?.isApiKeyMissing && !hasServerKey) {
           setIsApiKeyMissing(true);
           setShowApiKeyModal(true);
-          setErrorMessage("Gemini API Key required: Configure your key in Settings below or in your Vercel Dashboard.");
+          setErrorMessage("API Key required: Configure your key in Settings below or in your Vercel Dashboard.");
           return;
         }
 
@@ -578,7 +582,7 @@ export default function Home() {
     if (!generatedImage) return;
     const link = document.createElement("a");
     link.href = generatedImage;
-    link.download = `flipmyspace-${selectedStyle.toLowerCase().replace(/\s+/g, "-")}-${Date.now()}.jpg`;
+    link.download = `relive-${selectedStyle.toLowerCase().replace(/\s+/g, "-")}-${Date.now()}.jpg`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -590,29 +594,11 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#faf7f2] text-[#1c1917] flex flex-col font-sans">
-      {/* Warm Announcement Sub-header */}
-      <div className="bg-[#f3ede2] text-[#666057] text-xs py-2 px-4 text-center border-b border-[#e8e2d5] font-medium">
-        <span className="inline-flex items-center gap-1.5">
-          <Sparkles className="w-3.5 h-3.5 text-[#c25e37]" />
-          <span>Thoughtfully engineered AI virtual staging &bull; Form follows architecture</span>
-        </span>
-      </div>
-
       {/* Main Navigation Bar */}
       <nav className="bg-[#ffffff]/90 backdrop-blur-md border-b border-[#e8e2d5] sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-xl bg-[#c25e37] text-[#ffffff] flex items-center justify-center font-bold text-base shadow-sm">
-              <Compass className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <div className="font-extrabold text-xl tracking-tight text-[#1c1917]">
-                FlipMy<span className="text-[#c25e37]">Space</span>
-              </div>
-              <div className="text-[11px] text-[#78716c] font-medium tracking-wide">
-                Intelligent Interior Staging
-              </div>
-            </div>
+            <ReliveLogo showTagline={true} />
           </div>
 
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-[#57534e]">
@@ -654,18 +640,12 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Left Text Column */}
           <div className="lg:col-span-7 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#f4efe6] border border-[#e8e2d5] text-[#8c3817] text-xs font-semibold">
-              <span className="w-2 h-2 rounded-full bg-[#c25e37]" />
-              <span>Architectural Harmony &bull; Natural Light Fidelity</span>
-            </div>
-
             <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-[#1c1917] leading-[1.1]">
-              Bring empty rooms to life with{" "}
-              <span className="text-[#c25e37]">thoughtful design.</span>
+              Imagine your home, <span className="text-[#c25e37]">anew.</span>
             </h1>
 
             <p className="text-base sm:text-lg text-[#57534e] max-w-xl font-normal leading-relaxed">
-              Upload a photograph of any unfurnished space. Gemini 3.8 calculates the true camera perspective, preserving your actual walls, flooring, and daylight while furnishing it with designer warmth.
+              Visualise your space before you transform it. Upload a photograph of any unfurnished space, and Relive’s neural spatial engine calculates the true camera perspective, preserving your actual walls, flooring, and daylight while furnishing it with designer warmth.
             </p>
 
             <div className="pt-2 flex flex-col sm:flex-row items-center gap-3.5">
@@ -924,14 +904,14 @@ export default function Home() {
               ) : (
                 <span className="flex items-center gap-1.5 text-[#8c3817]">
                   <span className="w-2 h-2 rounded-full bg-[#c25e37] animate-pulse" />
-                  <span>Configure Gemini Key</span>
+                  <span>Configure AI Key</span>
                 </span>
               )}
             </button>
           </div>
         </div>
 
-        {/* Gemini API Key Configuration Card */}
+        {/* AI Studio API Key Configuration Card */}
         {showApiKeyModal && (
           <div className="mb-8 p-6 rounded-2xl bg-white border-2 border-[#c25e37]/40 shadow-md space-y-4">
             <div className="flex items-start justify-between gap-4 border-b border-[#e8e2d5] pb-3">
@@ -941,10 +921,10 @@ export default function Home() {
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-[#1c1917]">
-                    Gemini API Key Configuration
+                    AI Studio Key Configuration
                   </h3>
                   <p className="text-xs text-[#57534e]">
-                    Configure your Google Gemini API key to run staging directly on Vercel or localhost.
+                    Configure your AI Studio staging key to run room design directly on Vercel or localhost.
                   </p>
                 </div>
               </div>
@@ -985,14 +965,14 @@ export default function Home() {
             <div className="space-y-3">
               <div className="text-xs text-[#57534e] leading-relaxed">
                 <p>
-                  <strong>Direct Browser Staging:</strong> Paste your Google AI Studio Gemini API Key below. It is stored securely in your browser and sent with your staging requests.
+                  <strong>Direct Browser Staging:</strong> Paste your Google AI Studio API Key below. It is stored securely in your browser and sent with your staging requests.
                 </p>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-2.5">
                 <input
                   type="password"
-                  placeholder="Paste your Gemini API key (AQ.Ab... or AIza...)"
+                  placeholder="Paste your API key (AQ.Ab... or AIza...)"
                   value={apiKeyInput}
                   onChange={(e) => setApiKeyInput(e.target.value)}
                   className="flex-1 px-4 py-2.5 rounded-xl border border-[#e8e2d5] text-xs font-mono bg-[#faf7f2] focus:outline-none focus:border-[#c25e37] text-[#1c1917]"
@@ -1071,20 +1051,20 @@ export default function Home() {
 
             {quotaDetails?.analysis && (
               <div className="p-3.5 rounded-xl bg-[#f8f5ee] border border-[#e8e2d5] text-xs text-[#47433c] leading-relaxed">
-                <span className="font-bold text-[#1c1917]">Gemini 3.8 Spatial Scan: </span>
+                <span className="font-bold text-[#1c1917]">Relive Spatial Architecture Scan: </span>
                 {quotaDetails.analysis}
               </div>
             )}
 
             <div className="text-xs text-[#57534e] space-y-1.5 leading-relaxed">
               <p>
-                <strong>Diagnostic:</strong> Your Google API key successfully used <code>gemini-3.8-flash</code> to inspect the floor lines, wall perspective, and daylight from your uploaded photo.
+                <strong>Diagnostic:</strong> Your AI Studio key successfully analyzed the floor lines, wall perspective, and daylight orientation from your uploaded photo.
               </p>
               <p>
-                However, Google Cloud assigns a <strong>0-request limit (limit: 0)</strong> on free-tier projects for image-generation models (<code>gemini-3.1-flash-image</code> and <code>imagen-3.0</code>).
+                However, image synthesis requires an active billing account linked to your AI project (Google Cloud assigns a 0-quota limit on unbilled free projects for image generation).
               </p>
               <p>
-                To enable Google to return full photorealistic staged renders of your uploaded room, link a Pay-As-You-Go billing account in Google AI Studio or Google Cloud Console.
+                To enable the neural engine to return photorealistic staged renders of your uploaded room, ensure Pay-As-You-Go billing is enabled in your Google AI Studio account.
               </p>
             </div>
 
@@ -1520,12 +1500,12 @@ export default function Home() {
               </div>
             )}
 
-            {/* Gemini Architectural Analysis Card */}
+            {/* Spatial Architectural Analysis Card */}
             {roomAnalysis && (
               <div className="p-4 rounded-xl bg-[#f8f5ee] border border-[#e8e2d5] text-xs text-[#47433c] leading-relaxed flex items-start gap-3">
                 <Info className="w-4 h-4 text-[#c25e37] flex-shrink-0 mt-0.5" />
                 <div>
-                  <span className="font-bold text-[#1c1917]">Gemini 3.8 Spatial Analysis: </span>
+                  <span className="font-bold text-[#1c1917]">Relive Spatial Analysis: </span>
                   <span>{roomAnalysis}</span>
                 </div>
               </div>
@@ -1564,7 +1544,7 @@ export default function Home() {
               Structural Perimeter Lock
             </h3>
             <p className="text-xs text-[#57534e] leading-relaxed">
-              No wall or window distortion. Gemini 3.8 Flash anchors the horizon line, perimeter walls, and door openings before introducing furniture.
+              No wall or window distortion. Relive's neural spatial engine anchors the horizon line, perimeter walls, and door openings before introducing furniture.
             </p>
           </div>
 
@@ -1598,11 +1578,7 @@ export default function Home() {
       <footer className="border-t border-[#e8e2d5] bg-[#ffffff] py-12 px-4 sm:px-6 lg:px-8 mt-auto text-xs text-[#78716c]">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2.5">
-            <div className="w-5 h-5 rounded-md bg-[#c25e37] text-[#ffffff] flex items-center justify-center font-bold text-[10px]">
-              F
-            </div>
-            <span className="font-bold text-[#1c1917]">FlipMySpace</span>
-            <span>&bull; Intelligent Room Staging Studio</span>
+            <ReliveLogo showTagline={false} />
           </div>
 
           <div className="flex items-center gap-6">
@@ -1618,11 +1594,11 @@ export default function Home() {
           </div>
 
           <div>
-            &copy; {new Date().getFullYear()} FlipMySpace. All rights reserved.
+            &copy; {new Date().getFullYear()} Relive. All rights reserved.
           </div>
         </div>
       </footer>
-      {/* Floating Eera AI Design Assistant */}
+      {/* Floating Draggable Eera AI Design Assistant */}
       <EeraAssistant
         selectedStyle={selectedStyle}
         selectedRoomType={selectedRoomType}
@@ -1630,6 +1606,7 @@ export default function Home() {
         roomAnalysis={roomAnalysis}
         customApiKey={customApiKey}
         onApplyRefinement={handleApplyRefinement}
+        onScrollToStudio={scrollToStudio}
         isRegenerating={isLoading}
       />
     </div>

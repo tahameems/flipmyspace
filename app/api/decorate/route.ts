@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           error:
-            "Gemini API key is not configured on the server. Please add GEMINI_API_KEY in your Vercel Project Settings > Environment Variables, or enter your Gemini API key in the Staging Studio settings.",
+            "AI Studio API key is not configured on the server. Please add GEMINI_API_KEY in your Vercel Project Settings > Environment Variables, or enter your API key in the Staging Studio settings.",
           isApiKeyMissing: true,
         },
         { status: 401 }
@@ -174,7 +174,7 @@ STRICT ARCHITECTURAL CONSTRAINTS:
         isQuotaError: true,
         analysis: roomAnalysis,
         helpMessage:
-          "Google AI Studio allows Gemini 3.8 Flash text/vision for free, but assigns a 0-quota limit (limit: 0) to all image-generation models (gemini-3.1-flash-image and imagen-3.0) unless Pay-As-You-Go billing is enabled on your Google Cloud Project.",
+          "Google AI Studio allows spatial vision analysis, but assigns a 0-quota limit (limit: 0) to image-generation models unless Pay-As-You-Go billing is enabled on your project.",
         billingUrl: "https://ai.google.dev/gemini-api/docs/rate-limits",
       },
       { status: 429 }

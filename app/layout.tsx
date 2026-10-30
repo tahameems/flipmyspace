@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "FlipMySpace — Warm, Intelligent Room Staging Studio",
-  description: "Transform empty rooms into warm, thoughtfully styled spaces in seconds with AI. Architectural precision with designer furniture, natural lighting, and photorealistic 8K staging.",
+  title: "Relive — Imagine your home, anew. Visualise before you transform.",
+  description: "Visualise your space before you transform it. Relive transforms unfurnished rooms with architectural precision, authentic lighting, and curated interior styles.",
 };
 
 export default function RootLayout({

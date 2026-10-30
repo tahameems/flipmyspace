@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           error:
-            "Gemini API key is not configured. Please add GEMINI_API_KEY in Vercel or configure it in Studio settings.",
+            "AI Studio API key is not configured. Please add GEMINI_API_KEY in Vercel or configure it in Studio settings.",
         },
         { status: 401 }
       );
@@ -142,3 +142,4 @@ Always keep this specific room context in mind when guiding the user.`;
     );
   }
 }
+
