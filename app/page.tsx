@@ -2,16 +2,13 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import {
-  Sparkles,
   UploadCloud,
   Download,
   RotateCcw,
   AlertCircle,
   CheckCircle2,
   Image as ImageIcon,
-  Palette,
   Loader2,
-  Info,
   Sliders,
   Columns,
   Home as HomeIcon,
@@ -24,92 +21,93 @@ import {
   ShieldCheck,
   Zap,
   Eye,
-  Flame,
   Layers,
-  Wand2
+  ArrowUpRight,
+  Maximize2
 } from "lucide-react";
 
 interface StyleOption {
   id: string;
   name: string;
+  code: string;
   subtitle: string;
-  tag: string;
-  imageHint: string;
+  material: string;
 }
 
 interface RoomTypeOption {
   id: string;
   name: string;
+  code: string;
   icon: React.ComponentType<{ className?: string }>;
 }
 
 const ROOM_TYPES: RoomTypeOption[] = [
-  { id: "Living Room", name: "Living Room", icon: HomeIcon },
-  { id: "Bedroom", name: "Bedroom", icon: Bed },
-  { id: "Home Office", name: "Home Office", icon: Briefcase },
-  { id: "Dining Room", name: "Dining Room", icon: Utensils },
-  { id: "Kitchen", name: "Kitchen", icon: Coffee },
-  { id: "Bathroom", name: "Bathroom", icon: Bath },
+  { id: "Living Room", name: "Living Room", code: "R-01", icon: HomeIcon },
+  { id: "Bedroom", name: "Bedroom", code: "R-02", icon: Bed },
+  { id: "Home Office", name: "Home Office", code: "R-03", icon: Briefcase },
+  { id: "Dining Room", name: "Dining Room", code: "R-04", icon: Utensils },
+  { id: "Kitchen", name: "Kitchen", code: "R-05", icon: Coffee },
+  { id: "Bathroom", name: "Bathroom", code: "R-06", icon: Bath },
 ];
 
 const STYLES: StyleOption[] = [
   {
     id: "Modern Minimalist",
     name: "Modern Minimalist",
-    subtitle: "Tailored low-profile seating, warm neutral undertones & concealed architectural storage",
-    tag: "Trending Now",
-    imageHint: "Warm cream bouclé, slim black accents & diffuse cove lighting"
+    code: "ST-01",
+    subtitle: "Low-profile geometric planes, monolithic forms & concealed structural storage",
+    material: "Plaster &bull; Linen &bull; Matte Iron"
   },
   {
     id: "Scandinavian",
     name: "Scandinavian",
-    subtitle: "Blond ash woodwork, luminous hygge textiles, linen drapes & sun-kissed textures",
-    tag: "Fan Favorite",
-    imageHint: "Natural shearling, floating timber shelves & ceramic vessels"
+    code: "ST-02",
+    subtitle: "Blond ash woodwork, tactile hygge wool, linen textiles & diffuse daylighting",
+    material: "Light Oak &bull; Wool &bull; Ceramic"
   },
   {
     id: "Japandi",
     name: "Japandi",
-    subtitle: "Wabi-sabi balance bridging organic Japanese tranquility with sleek Nordic craft",
-    tag: "Zen Aesthetic",
-    imageHint: "Low timber platform, bonsai greenery & shoji paper accents"
+    code: "ST-03",
+    subtitle: "Wabi-sabi equilibrium uniting organic Japanese restraint with Nordic utilitarianism",
+    material: "Cedar &bull; Paper Lanterns &bull; Clay"
   },
   {
     id: "Industrial",
     name: "Industrial",
-    subtitle: "Exposed brick textures, aged iron rivets, cognac leather & dramatic warehouse windows",
-    tag: "Bold Loft",
-    imageHint: "Weathered oak, cast iron light bars & matte charcoal trims"
+    code: "ST-04",
+    subtitle: "Exposed brick masonry, structural black steel, cognac leather & grid glazing",
+    material: "Cold-Rolled Steel &bull; Brick &bull; Leather"
   },
   {
     id: "Mid-Century Modern",
     name: "Mid-Century Modern",
-    subtitle: "Sculptural walnut curves, brass sconces, olive accents & iconic mid-century silhouettes",
-    tag: "Timeless Classic",
-    imageHint: "Tapered dowel legs, statement credenzas & retro geometric art"
+    code: "ST-05",
+    subtitle: "Functional curved walnut silhouettes, brass accents & disciplined 1950s ergonomics",
+    material: "Oiled Walnut &bull; Brass &bull; Olive Weave"
   },
   {
     id: "Bohemian",
     name: "Bohemian",
-    subtitle: "Lush cascading monstera, rich terracotta accents, Moroccan rugs & sunlit warmth",
-    tag: "Warm & Earthy",
-    imageHint: "Rattan armchairs, woven wall tapestries & warm amber glow"
+    code: "ST-06",
+    subtitle: "Textured terracotta, layered kilim weaves, organic rattan & abundant botanicals",
+    material: "Terracotta &bull; Rattan &bull; Jute"
   },
 ];
 
-// Sample demo images for instant one-click testing
+// Verified 1:1 camera-angle matching virtual staging pairs
 const DEMO_SAMPLES = [
   {
-    id: "empty-living",
-    label: "Living Room Flip",
+    id: "living-room",
+    label: "Living Room (Study 01)",
     empty: "https://cdn.stagehq.ai/landing-virtualstaging/livingroom_01_before.jpg",
     styled: "https://cdn.stagehq.ai/landing-virtualstaging/livingroom_01_after.jpg",
     style: "Modern Minimalist",
     room: "Living Room",
   },
   {
-    id: "empty-bedroom",
-    label: "Bedroom Flip",
+    id: "bedroom",
+    label: "Bedroom (Study 02)",
     empty: "https://cdn.stagehq.ai/landing-virtualstaging/bedroom_01_before.jpg",
     styled: "https://cdn.stagehq.ai/landing-virtualstaging/bedroom_01_after.jpg",
     style: "Scandinavian",
@@ -146,24 +144,24 @@ export default function Home() {
   const [sliderPosition, setSliderPosition] = useState<number>(50);
 
   // Interactive Hero Demo Slider state
-  const [heroSliderPos, setHeroSliderPos] = useState<number>(45);
+  const [heroSliderPos, setHeroSliderPos] = useState<number>(48);
   const [activeDemoIndex, setActiveDemoIndex] = useState<number>(0);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const studioRef = useRef<HTMLDivElement | null>(null);
   const resultsRef = useRef<HTMLDivElement | null>(null);
 
-  // Multi-phase realistic loading animation
+  // Structural loading progression
   useEffect(() => {
     if (isLoading) {
-      setLoadingProgress(12);
-      setLoadingStatus("Scanning perspective, ceiling height & wall alignment with Gemini...");
+      setLoadingProgress(14);
+      setLoadingStatus("Measuring spatial coordinates & ceiling lines with Gemini 3.8...");
 
       const phases = [
-        { at: 2200, prog: 38, text: "Locking structural boundaries, doors & window daylight..." },
-        { at: 5200, prog: 68, text: `Staging custom ${selectedStyle} furniture layout...` },
-        { at: 8800, prog: 89, text: "Generating photorealistic textures, shadows & designer lighting..." },
-        { at: 12200, prog: 97, text: "Putting the final touches on your space flip..." },
+        { at: 2000, prog: 40, text: "Locking perimeter walls, floor horizon & fenestration..." },
+        { at: 5000, prog: 70, text: `Synthesizing ${selectedStyle} furniture layout to scale...` },
+        { at: 8500, prog: 90, text: "Balancing natural shadow falloff & material reflectance..." },
+        { at: 12000, prog: 98, text: "Generating architectural master render..." },
       ];
 
       const timeouts = phases.map((phase) =>
@@ -183,12 +181,12 @@ export default function Home() {
 
   const handleFile = (file: File) => {
     if (!file.type.match(/^image\/(jpeg|png|webp)$/)) {
-      setErrorMessage("Please upload a valid image file (JPEG, PNG, or WebP).");
+      setErrorMessage("Please supply an image in JPEG, PNG, or WebP format.");
       return;
     }
 
     if (file.size > 14 * 1024 * 1024) {
-      setErrorMessage("Image is larger than 14MB. Please choose a smaller photo.");
+      setErrorMessage("File exceeds the 14MB size limit. Please provide a lighter asset.");
       return;
     }
 
@@ -201,6 +199,8 @@ export default function Home() {
       setGeneratedImage(null);
       setRoomAnalysis(null);
       setGenerationNotice(null);
+      setIsQuotaExceeded(false);
+      setQuotaDetails(null);
     };
     reader.readAsDataURL(file);
   };
@@ -220,6 +220,8 @@ export default function Home() {
         setGeneratedImage(null);
         setRoomAnalysis(null);
         setGenerationNotice(null);
+        setIsQuotaExceeded(false);
+        setQuotaDetails(null);
         studioRef.current?.scrollIntoView({ behavior: "smooth" });
       };
       reader.readAsDataURL(blob);
@@ -263,7 +265,7 @@ export default function Home() {
 
   const handleDecorate = async () => {
     if (!imagePreview) {
-      setErrorMessage("Please upload a room photo first.");
+      setErrorMessage("Please select or upload a room photograph first.");
       return;
     }
 
@@ -302,7 +304,7 @@ export default function Home() {
           }
           return;
         }
-        throw new Error(data.error || "Failed to flip room. Please try again.");
+        throw new Error(data.error || "Failed to process room staging. Please reattempt.");
       }
 
       setGeneratedImage(data.imageUrl);
@@ -317,7 +319,7 @@ export default function Home() {
         resultsRef.current?.scrollIntoView({ behavior: "smooth" });
       }, 300);
     } catch (err: any) {
-      setErrorMessage(err.message || "An unexpected error occurred. Please try again.");
+      setErrorMessage(err.message || "An unexpected processing error occurred.");
     } finally {
       setIsLoading(false);
     }
@@ -338,377 +340,384 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen text-slate-100 flex flex-col relative overflow-hidden">
-      {/* Luminous Warm Gradient Orbs & Active Energetic Overlays */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[1100px] h-[650px] bg-gradient-to-b from-rose-500/25 via-amber-500/20 to-transparent blur-[140px] rounded-full" />
-        <div className="absolute top-[400px] -left-32 w-[650px] h-[650px] bg-gradient-to-tr from-pink-600/20 via-purple-600/15 to-transparent blur-[150px] rounded-full" />
-        <div className="absolute top-[1100px] -right-32 w-[700px] h-[700px] bg-gradient-to-bl from-amber-500/25 via-orange-600/20 to-transparent blur-[160px] rounded-full" />
-        <div className="absolute top-[2000px] left-1/4 w-[800px] h-[500px] bg-gradient-to-r from-rose-600/15 via-violet-600/15 to-amber-500/15 blur-[150px] rounded-full" />
+    <div className="min-h-screen bg-[#f7f5f0] text-[#141312] flex flex-col font-sans">
+      {/* Top Architectural Rule Bar */}
+      <div className="bg-[#141312] text-[#f7f5f0] text-[11px] font-mono tracking-widest uppercase py-1.5 px-4 sm:px-8 flex justify-between items-center border-b border-[#2a2825]">
+        <span>BAUHAUS SPATIAL SYSTEM &bull; EDITION 2026</span>
+        <span className="hidden sm:inline">FORM FOLLOWS FUNCTION &bull; WCAG AAA ACCESSIBLE</span>
       </div>
 
-      {/* Navigation Bar */}
-      <nav className="glass-nav-warm sticky top-0 z-50 transition-all">
+      {/* Main Modernist Navigation */}
+      <nav className="bg-[#ffffff] border-b border-[#ded9cd] sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-rose-500 via-amber-500 to-orange-400 flex items-center justify-center text-white shadow-lg glow-amber transform hover:rotate-6 transition">
-              <Flame className="w-6 h-6 text-white" />
+          <div className="flex items-center gap-4">
+            {/* Geometric Bauhaus Identity Mark */}
+            <div className="w-10 h-10 bg-[#141312] text-[#ffffff] flex items-center justify-center font-bold text-base tracking-tighter">
+              FM
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className="font-black text-2xl tracking-tight text-white font-sans">
-                FlipMy<span className="bg-gradient-to-r from-amber-400 via-rose-400 to-orange-400 bg-clip-text text-transparent">Space</span>
-              </span>
-              <span className="hidden sm:inline-flex items-center text-[10px] font-bold tracking-widest uppercase px-2.5 py-0.5 rounded-full bg-gradient-to-r from-rose-500/20 to-amber-500/20 border border-amber-400/30 text-amber-300">
-                AI Studio
-              </span>
+            <div>
+              <div className="font-extrabold text-xl tracking-tight text-[#141312]">
+                FLIP<span className="text-[#8a857b]">MY</span>SPACE
+              </div>
+              <div className="text-[10px] font-mono tracking-wider uppercase text-[#736e64]">
+                Architectural Staging Engine
+              </div>
             </div>
           </div>
 
-          <div className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-200">
-            <button onClick={scrollToStudio} className="hover:text-amber-300 transition flex items-center gap-1.5">
-              <Wand2 className="w-4 h-4 text-rose-400" />
-              Flip Studio
+          <div className="hidden md:flex items-center gap-8 text-xs font-mono tracking-wider uppercase text-[#47433c]">
+            <button onClick={scrollToStudio} className="hover:text-[#141312] transition font-bold">
+              01 // Studio
             </button>
-            <a href="#demo" className="hover:text-amber-300 transition">
-              Live Slider
+            <a href="#demo" className="hover:text-[#141312] transition">
+              02 // Proof
             </a>
-            <a href="#styles" className="hover:text-amber-300 transition">
-              Vibes &amp; Aesthetics
+            <a href="#typology" className="hover:text-[#141312] transition">
+              03 // Aesthetics
             </a>
-            <a href="#features" className="hover:text-amber-300 transition">
-              Why Us
+            <a href="#principles" className="hover:text-[#141312] transition">
+              04 // Principles
             </a>
           </div>
 
           <div className="flex items-center gap-3">
             <button
               onClick={() => loadSample(0)}
-              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/15 border border-white/15 text-white transition backdrop-blur shadow-sm"
+              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-mono uppercase tracking-wider text-[#141312] bg-[#f7f5f0] hover:bg-[#eeeae0] border border-[#ded9cd] transition"
             >
-              <Zap className="w-3.5 h-3.5 text-amber-400" />
-              Try Demo
+              <Eye className="w-3.5 h-3.5 text-[#736e64]" />
+              Study Sample
             </button>
             <button
               onClick={scrollToStudio}
-              className="px-5 py-2.5 rounded-xl text-xs font-black bg-gradient-to-r from-rose-500 via-amber-500 to-orange-500 hover:from-rose-600 hover:via-amber-600 hover:to-orange-600 text-white shadow-lg glow-warm transition active:scale-95"
+              className="px-5 py-2.5 text-xs font-mono uppercase tracking-wider text-[#ffffff] bg-[#141312] hover:bg-[#2b2926] transition font-bold flex items-center gap-2"
             >
-              Start Free Flip
+              <span>Initialize Staging</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="relative z-10 pt-14 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
-        {/* Floating Energetic Tag */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-rose-500/20 via-amber-500/20 to-orange-500/20 border border-amber-400/40 text-amber-200 text-xs font-bold mb-6 shadow-sm backdrop-blur">
-          <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-spin" />
-          <span>Next-Generation Spatial AI Remodeling</span>
-        </div>
-
-        {/* Hero Title */}
-        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white max-w-4xl mx-auto leading-[1.12]">
-          Flip Any Space into a{" "}
-          <span className="bg-gradient-to-r from-amber-300 via-rose-400 to-orange-400 bg-clip-text text-transparent">
-            Dream Room
-          </span>{" "}
-          in Seconds
-        </h1>
-
-        {/* Subtitle */}
-        <p className="mt-6 text-base sm:text-lg lg:text-xl text-slate-200 max-w-2xl mx-auto font-normal leading-relaxed">
-          Snap a picture of an empty room or dated interior. Our spatial Gemini AI preserves your structural walls and daylight, instantly remodeling the space with high-end designer furniture.
-        </p>
-
-        {/* Hero CTA row */}
-        <div className="mt-9 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <button
-            onClick={scrollToStudio}
-            className="w-full sm:w-auto px-8 py-4 rounded-2xl text-sm font-black bg-gradient-to-r from-rose-500 via-amber-500 to-orange-500 hover:from-rose-600 hover:via-amber-600 hover:to-orange-600 text-white shadow-2xl glow-warm flex items-center justify-center gap-2 transition transform hover:-translate-y-0.5 active:scale-95"
-          >
-            <Sparkles className="w-4 h-4 text-amber-100" />
-            Upload Photo &amp; Flip Room
-            <ArrowRight className="w-4 h-4 ml-1" />
-          </button>
-          <button
-            onClick={() => loadSample(0)}
-            className="w-full sm:w-auto px-6 py-4 rounded-2xl text-sm font-bold bg-white/10 hover:bg-white/15 border border-white/20 text-white transition flex items-center justify-center gap-2 backdrop-blur shadow-sm"
-          >
-            <Eye className="w-4 h-4 text-amber-400" />
-            See Live Demo Flip
-          </button>
-        </div>
-
-        {/* Social Proof Stats with Warm Accent Dividers */}
-        <div className="mt-14 pt-8 border-t border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-4xl mx-auto text-left">
-          <div className="border-l-2 border-rose-500/60 pl-4 bg-white/[0.02] py-2 rounded-r-xl">
-            <div className="text-2xl font-black text-white tracking-tight">500,000+</div>
-            <div className="text-xs text-amber-200/80 font-medium mt-0.5">Spaces Remodeled</div>
-          </div>
-          <div className="border-l-2 border-amber-500/60 pl-4 bg-white/[0.02] py-2 rounded-r-xl">
-            <div className="text-2xl font-black text-white tracking-tight">100%</div>
-            <div className="text-xs text-amber-200/80 font-medium mt-0.5">Architecture Maintained</div>
-          </div>
-          <div className="border-l-2 border-orange-500/60 pl-4 bg-white/[0.02] py-2 rounded-r-xl">
-            <div className="text-2xl font-black text-white tracking-tight">&lt; 10s</div>
-            <div className="text-xs text-amber-200/80 font-medium mt-0.5">Instant Rendering</div>
-          </div>
-          <div className="border-l-2 border-purple-500/60 pl-4 bg-white/[0.02] py-2 rounded-r-xl">
-            <div className="text-2xl font-black text-white tracking-tight">8K Ultra</div>
-            <div className="text-xs text-amber-200/80 font-medium mt-0.5">Photorealistic Output</div>
-          </div>
-        </div>
-
-        {/* Interactive Before/After Split Hero Slider Demo */}
-        <div id="demo" className="mt-16 relative max-w-5xl mx-auto">
-          <div className="relative rounded-3xl overflow-hidden border border-white/20 shadow-2xl bg-black aspect-[16/10] sm:aspect-[16/9] group select-none ring-1 ring-amber-400/20">
-            {/* Background Styled Image */}
-            <img
-              src={DEMO_SAMPLES[activeDemoIndex].styled}
-              alt="Flipped Room After"
-              className="absolute inset-0 w-full h-full object-cover"
-              draggable={false}
-            />
-
-            {/* Foreground Empty Image with clip path */}
-            <div
-              className="absolute inset-0 overflow-hidden"
-              style={{ clipPath: `polygon(0 0, ${heroSliderPos}% 0, ${heroSliderPos}% 100%, 0 100%)` }}
-            >
-              <img
-                src={DEMO_SAMPLES[activeDemoIndex].empty}
-                alt="Empty Space Before"
-                className="absolute inset-0 w-full h-full object-cover"
-                draggable={false}
-              />
+      {/* Hero Header Section */}
+      <section className="border-b border-[#ded9cd] bg-[#ffffff] pt-16 pb-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Asymmetric Bauhaus Grid Header */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end pb-12 border-b border-[#ece8df]">
+            <div className="lg:col-span-8 space-y-4">
+              <div className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#736e64] bg-[#f7f5f0] px-3 py-1 border border-[#ded9cd]">
+                <span>System // Spatial Staging</span>
+                <span className="text-[#ded9cd]">&bull;</span>
+                <span>Gemini 3.8 Precision</span>
+              </div>
+              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-[#141312] leading-[1.05]">
+                Architectural Clarity in Room Staging.
+              </h1>
+              <p className="text-base sm:text-lg text-[#5c574e] max-w-2xl font-normal leading-relaxed pt-2">
+                Uncompromising functional realism. We preserve structural envelopes, daylighting axes, and floor boundaries—populating empty spaces with calibrated international design.
+              </p>
             </div>
 
-            {/* Slider Dividing Bar with Glow */}
-            <div
-              className="absolute top-0 bottom-0 w-1 bg-gradient-to-b from-amber-400 via-rose-500 to-amber-300 shadow-2xl z-20 pointer-events-none"
-              style={{ left: `${heroSliderPos}%` }}
-            >
-              <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-11 h-11 rounded-full bg-gradient-to-tr from-amber-400 via-rose-500 to-orange-400 text-white shadow-xl flex items-center justify-center font-black text-sm tracking-tighter border-2 border-white">
-                &lsaquo;&rsaquo;
+            <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3 justify-end">
+              <button
+                onClick={scrollToStudio}
+                className="w-full py-4 px-6 bg-[#141312] hover:bg-[#2b2926] text-[#ffffff] font-mono text-xs uppercase tracking-wider flex items-center justify-between transition font-bold"
+              >
+                <span>Upload Room Photograph</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => loadSample(0)}
+                className="w-full py-4 px-6 bg-[#f7f5f0] hover:bg-[#eeeae0] text-[#141312] border border-[#ded9cd] font-mono text-xs uppercase tracking-wider flex items-center justify-between transition"
+              >
+                <span>Examine Benchmark Flip</span>
+                <ArrowUpRight className="w-4 h-4 text-[#736e64]" />
+              </button>
+            </div>
+          </div>
+
+          {/* Metric Ledger */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border-b border-[#ece8df] text-[#141312]">
+            <div className="p-6 border-r border-[#ece8df]">
+              <div className="text-xs font-mono uppercase tracking-widest text-[#8a857b]">01 / Precision</div>
+              <div className="text-3xl font-extrabold mt-1 tracking-tight">100%</div>
+              <div className="text-xs text-[#5c574e] mt-1">Perimeter Lock</div>
+            </div>
+            <div className="p-6 md:border-r border-[#ece8df]">
+              <div className="text-xs font-mono uppercase tracking-widest text-[#8a857b]">02 / Turnaround</div>
+              <div className="text-3xl font-extrabold mt-1 tracking-tight">&lt; 10s</div>
+              <div className="text-xs text-[#5c574e] mt-1">Algorithmic Synthesis</div>
+            </div>
+            <div className="p-6 border-r border-[#ece8df] border-t md:border-t-0">
+              <div className="text-xs font-mono uppercase tracking-widest text-[#8a857b]">03 / Resolution</div>
+              <div className="text-3xl font-extrabold mt-1 tracking-tight">8K UHD</div>
+              <div className="text-xs text-[#5c574e] mt-1">Architectural Output</div>
+            </div>
+            <div className="p-6 border-t md:border-t-0">
+              <div className="text-xs font-mono uppercase tracking-widest text-[#8a857b]">04 / Accessibility</div>
+              <div className="text-3xl font-extrabold mt-1 tracking-tight">AAA</div>
+              <div className="text-xs text-[#5c574e] mt-1">High Contrast Ratio</div>
+            </div>
+          </div>
+
+          {/* Interactive Split Slider Section (Matching Benchmark Images) */}
+          <div id="demo" className="mt-12">
+            <div className="flex flex-col sm:flex-row items-baseline justify-between mb-4 gap-2">
+              <div className="flex items-center gap-3">
+                <span className="font-mono text-xs uppercase tracking-widest text-[#8a857b]">
+                  Fig. 01 — Structural Comparison
+                </span>
+                <span className="text-xs text-[#5c574e]">
+                  ({DEMO_SAMPLES[activeDemoIndex].style})
+                </span>
+              </div>
+              {/* Sample Switcher Tabs */}
+              <div className="flex gap-2">
+                {DEMO_SAMPLES.map((sample, idx) => (
+                  <button
+                    key={sample.id}
+                    onClick={() => setActiveDemoIndex(idx)}
+                    className={`px-3 py-1 text-xs font-mono uppercase tracking-wider transition ${
+                      activeDemoIndex === idx
+                        ? "bg-[#141312] text-[#ffffff] font-bold"
+                        : "bg-[#f7f5f0] text-[#5c574e] border border-[#ded9cd] hover:text-[#141312]"
+                    }`}
+                  >
+                    {sample.label}
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* Interactive Slider Input */}
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={heroSliderPos}
-              onChange={(e) => setHeroSliderPos(Number(e.target.value))}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-30"
-              aria-label="Drag before and after transformation"
-            />
+            {/* Split Comparison Frame */}
+            <div className="relative border-2 border-[#141312] bg-[#ffffff] aspect-[16/10] sm:aspect-[16/9] overflow-hidden select-none">
+              {/* After Staged Base Image */}
+              <img
+                src={DEMO_SAMPLES[activeDemoIndex].styled}
+                alt="Architecturally Staged Room After"
+                className="absolute inset-0 w-full h-full object-cover"
+                draggable={false}
+              />
 
-            {/* Labels */}
-            <div className="absolute top-4 left-4 z-10 px-3.5 py-1.5 rounded-xl bg-black/75 backdrop-blur-md text-white text-xs font-bold border border-white/20 flex items-center gap-1.5 pointer-events-none">
-              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-              Before: Empty Space
-            </div>
-            <div className="absolute top-4 right-4 z-10 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-rose-600 to-amber-600 backdrop-blur-md text-white text-xs font-bold border border-white/25 flex items-center gap-1.5 pointer-events-none shadow-lg">
-              <Sparkles className="w-3.5 h-3.5 text-amber-200" />
-              After: FlipMySpace ({DEMO_SAMPLES[activeDemoIndex].style})
-            </div>
-
-            {/* Floating Instruction Hint */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 px-4 py-1.5 rounded-full bg-black/70 backdrop-blur border border-white/15 text-amber-200 text-xs pointer-events-none flex items-center gap-2 shadow-lg">
-              <Sliders className="w-3.5 h-3.5 text-amber-400" />
-              <span>Slide back and forth to inspect the flip</span>
-            </div>
-          </div>
-
-          {/* Demo switcher pills */}
-          <div className="mt-4 flex items-center justify-center gap-2.5">
-            {DEMO_SAMPLES.map((sample, idx) => (
-              <button
-                key={sample.id}
-                onClick={() => setActiveDemoIndex(idx)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm ${
-                  activeDemoIndex === idx
-                    ? "bg-gradient-to-r from-rose-500/30 to-amber-500/30 text-amber-200 border border-amber-400/50 shadow-amber-500/20"
-                    : "bg-white/5 text-slate-300 border border-white/10 hover:text-white hover:bg-white/10"
-                }`}
+              {/* Before Empty Image with responsive clipPath */}
+              <div
+                className="absolute inset-0 overflow-hidden"
+                style={{ clipPath: `polygon(0 0, ${heroSliderPos}% 0, ${heroSliderPos}% 100%, 0 100%)` }}
               >
-                {sample.label}
-              </button>
-            ))}
+                <img
+                  src={DEMO_SAMPLES[activeDemoIndex].empty}
+                  alt="Empty Spatial Void Before"
+                  className="absolute inset-0 w-full h-full object-cover"
+                  draggable={false}
+                />
+              </div>
+
+              {/* Vertical Bauhaus Dividing Rule */}
+              <div
+                className="absolute top-0 bottom-0 w-[2px] bg-[#ffffff] z-20 pointer-events-none shadow-[0_0_10px_rgba(0,0,0,0.5)]"
+                style={{ left: `${heroSliderPos}%` }}
+              >
+                <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-9 h-9 rounded-full bg-[#ffffff] text-[#141312] border-2 border-[#141312] flex items-center justify-center font-mono font-black text-xs shadow-md">
+                  &harr;
+                </div>
+              </div>
+
+              {/* Drag Input Range */}
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={heroSliderPos}
+                onChange={(e) => setHeroSliderPos(Number(e.target.value))}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-30"
+                aria-label="Drag to inspect architectural staging"
+              />
+
+              {/* Corner Indicators */}
+              <div className="absolute top-4 left-4 z-10 px-3 py-1 bg-[#141312] text-[#ffffff] font-mono text-[11px] uppercase tracking-widest pointer-events-none">
+                01 // BARE SHELL
+              </div>
+              <div className="absolute top-4 right-4 z-10 px-3 py-1 bg-[#ffffff] text-[#141312] border border-[#141312] font-mono text-[11px] uppercase tracking-widest pointer-events-none font-bold">
+                02 // STAGED PROJECTION
+              </div>
+
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 px-4 py-1.5 bg-[#ffffff]/90 text-[#141312] border border-[#ded9cd] text-[11px] font-mono uppercase tracking-wider pointer-events-none backdrop-blur">
+                Drag rule left / right to compare alignment
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Main Staging Studio */}
-      <section ref={studioRef} className="relative z-10 py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-gradient-to-r from-rose-500/20 to-amber-500/20 text-amber-300 border border-amber-400/30 text-xs font-bold mb-3">
-            <Flame className="w-3.5 h-3.5 text-orange-400" />
-            <span>Interactive Staging Studio</span>
+      {/* Main Studio Workspace */}
+      <section ref={studioRef} className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+        <div className="pb-8 border-b border-[#ded9cd] mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div>
+            <div className="font-mono text-xs uppercase tracking-widest text-[#8a857b] mb-1">
+              Workspace // Sequential Configuration
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#141312]">
+              Spatial Staging Studio
+            </h2>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-            Remodel Your Space in 3 Clicks
-          </h2>
-          <p className="mt-2 text-sm sm:text-base text-slate-300">
-            Upload your room, pick the layout and aesthetic, and let FlipMySpace generate the staged render.
-          </p>
+          <div className="text-xs font-mono text-[#5c574e]">
+            Follow steps 01 through 03 to render
+          </div>
         </div>
 
-        {/* Global Error Banner */}
+        {/* Global Error Notice */}
         {errorMessage && (
-          <div className="mb-8 p-4 rounded-2xl bg-rose-950/70 border border-rose-500/50 text-rose-100 flex items-start gap-3 backdrop-blur shadow-xl animate-fade-in max-w-4xl mx-auto">
-            <AlertCircle className="w-5 h-5 text-rose-400 flex-shrink-0 mt-0.5" />
-            <div className="flex-1 text-sm">
-              <span className="font-bold text-white">Notice: </span>
+          <div className="mb-8 p-4 bg-[#ffffff] border-l-4 border-[#141312] border-y border-r border-[#ded9cd] text-[#141312] flex items-start gap-3 shadow-sm">
+            <AlertCircle className="w-5 h-5 text-[#141312] flex-shrink-0 mt-0.5" />
+            <div className="flex-1 text-xs font-mono">
+              <span className="font-bold">SYSTEM NOTICE // </span>
               {errorMessage}
             </div>
             <button
               onClick={() => setErrorMessage(null)}
-              className="text-rose-300 hover:text-white text-sm font-bold p-1"
+              className="text-[#8a857b] hover:text-[#141312] text-sm font-mono font-bold"
             >
-              &times;
+              [CLOSE]
             </button>
           </div>
         )}
 
-        {/* Google API Quota Requirement Banner */}
+        {/* Google API Quota Requirement Box */}
         {isQuotaExceeded && (
-          <div className="mb-8 p-6 rounded-3xl bg-gradient-to-br from-amber-950/60 via-slate-900 to-rose-950/60 border border-amber-400/50 text-white backdrop-blur shadow-2xl animate-fade-in max-w-4xl mx-auto space-y-4 ring-1 ring-amber-400/30">
-            <div className="flex items-start justify-between gap-4">
+          <div className="mb-8 p-6 bg-[#ffffff] border-2 border-[#141312] text-[#141312] space-y-4">
+            <div className="flex items-start justify-between gap-4 border-b border-[#ded9cd] pb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-rose-500 flex items-center justify-center text-white shadow-lg">
-                  <ShieldCheck className="w-5 h-5" />
+                <div className="w-8 h-8 bg-[#141312] text-[#ffffff] flex items-center justify-center font-mono font-bold text-xs">
+                  API
                 </div>
                 <div>
-                  <h3 className="text-base font-black text-white">
-                    Google GenAI Image Staging: Free Tier Quota Required
+                  <h3 className="text-sm font-extrabold font-mono uppercase tracking-wider text-[#141312]">
+                    Google GenAI Quota Notice // Free Tier Quota Required
                   </h3>
-                  <p className="text-xs text-amber-300/90 font-medium">
-                    Your Gemini vision analysis succeeded, but image generation requires billing enabled.
+                  <p className="text-xs text-[#5c574e]">
+                    Spatial layout measurement was successful. Image synthesis requires billing activation.
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setIsQuotaExceeded(false)}
-                className="text-slate-400 hover:text-white text-lg font-bold p-1"
+                className="text-xs font-mono text-[#8a857b] hover:text-[#141312] font-bold"
               >
-                &times;
+                [DISMISS]
               </button>
             </div>
 
             {quotaDetails?.analysis && (
-              <div className="p-3.5 rounded-xl bg-black/40 border border-white/10 text-xs text-slate-200">
-                <span className="font-bold text-amber-300">Gemini 3.8 Spatial Room Analysis: </span>
+              <div className="p-3.5 bg-[#f7f5f0] border border-[#ded9cd] font-mono text-xs text-[#47433c] leading-relaxed">
+                <span className="font-bold text-[#141312]">GEMINI 3.8 SPATIAL SCAN // </span>
                 {quotaDetails.analysis}
               </div>
             )}
 
-            <div className="text-xs text-slate-300 space-y-2 leading-relaxed bg-white/[0.03] p-4 rounded-xl border border-white/10">
+            <div className="text-xs text-[#5c574e] space-y-1.5 leading-relaxed font-sans">
               <p>
-                <strong>Why this happened:</strong> Your Google API key successfully used{" "}
-                <span className="text-amber-300 font-mono">gemini-3.8-flash</span> to inspect the floor lines, wall perspective, and daylight from your uploaded photo.
+                <strong>Diagnostic:</strong> Your Google API key successfully used <code>gemini-3.8-flash</code> to inspect the floor lines, wall perspective, and daylight from your uploaded photo.
               </p>
               <p>
-                However, Google Cloud assigns a <span className="text-rose-300 font-semibold">0-request limit (limit: 0)</span> on free-tier projects for image generation models (<span className="text-amber-300 font-mono">gemini-3.1-flash-image</span> and <span className="text-amber-300 font-mono">imagen-3.0</span>).
+                However, Google Cloud assigns a <strong>0-request limit (limit: 0)</strong> on free-tier projects for image-generation models (<code>gemini-3.1-flash-image</code> and <code>imagen-3.0</code>).
               </p>
               <p>
                 To enable Google to return full photorealistic staged renders of your uploaded room, link a Pay-As-You-Go billing account in Google AI Studio or Google Cloud Console.
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 pt-1">
+            <div className="flex flex-wrap items-center gap-3 pt-2">
               <a
                 href={quotaDetails?.billingUrl || "https://ai.google.dev/gemini-api/docs/rate-limits"}
                 target="_blank"
                 rel="noreferrer"
-                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-rose-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-black shadow-lg transition flex items-center gap-1.5"
+                className="px-4 py-2.5 bg-[#141312] text-[#ffffff] hover:bg-[#2b2926] font-mono text-xs uppercase tracking-wider font-bold inline-flex items-center gap-2 transition"
               >
                 <span>Enable Google Cloud Image Quota</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </a>
               <button
                 onClick={() => loadSample(0)}
-                className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/20 text-white text-xs font-bold transition flex items-center gap-1.5"
+                className="px-4 py-2.5 bg-[#f7f5f0] hover:bg-[#eeeae0] text-[#141312] border border-[#ded9cd] font-mono text-xs uppercase tracking-wider transition"
               >
-                <Eye className="w-3.5 h-3.5 text-amber-400" />
-                <span>Test Interactive Slider Demo</span>
+                Examine Benchmark Slider
               </button>
             </div>
           </div>
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Step 1: Upload Room Photo */}
-          <div className="lg:col-span-5 glass-panel-warm rounded-3xl p-6 sm:p-7 space-y-5">
-            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+          {/* Step 01: Photo Input Container */}
+          <div className="lg:col-span-5 bauhaus-card p-6 sm:p-7 space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-[#ece8df]">
               <div className="flex items-center gap-2.5">
-                <span className="w-7 h-7 rounded-xl bg-gradient-to-tr from-rose-500 to-amber-500 text-white font-black text-xs flex items-center justify-center shadow-md">
-                  1
+                <span className="w-6 h-6 bg-[#141312] text-[#ffffff] font-mono text-xs font-bold flex items-center justify-center">
+                  01
                 </span>
-                <h3 className="font-bold text-white text-base">Upload Your Room</h3>
+                <h3 className="font-extrabold text-[#141312] text-sm uppercase tracking-wider font-mono">
+                  Room Input Asset
+                </h3>
               </div>
               {imagePreview && (
                 <button
                   onClick={handleClear}
-                  className="text-xs text-rose-400 hover:text-rose-300 font-semibold flex items-center gap-1 transition"
+                  className="text-xs font-mono text-[#8a857b] hover:text-[#141312] flex items-center gap-1 transition"
                 >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                  Reset
+                  <RotateCcw className="w-3 h-3" />
+                  Clear
                 </button>
               )}
             </div>
 
-            {/* Drag & Drop Upload Container */}
+            {/* Drag & Drop Upload Zone */}
             {!imagePreview ? (
               <div
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
-                className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-200 flex flex-col items-center justify-center min-h-[300px] ${
+                className={`border-2 border-dashed p-8 text-center cursor-pointer transition-all flex flex-col items-center justify-center min-h-[290px] ${
                   isDragging
-                    ? "border-amber-400 bg-amber-500/15 scale-[0.99]"
-                    : "border-white/20 hover:border-amber-400/70 bg-black/30 hover:bg-black/50"
+                    ? "border-[#141312] bg-[#eeeae0]"
+                    : "border-[#ded9cd] hover:border-[#141312] bg-[#faf8f5] hover:bg-[#f7f5f0]"
                 }`}
               >
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-rose-500/20 via-amber-500/20 to-orange-500/20 border border-amber-400/30 flex items-center justify-center text-amber-400 mb-4 shadow-inner">
-                  <UploadCloud className="w-8 h-8" />
+                <div className="w-12 h-12 bg-[#ffffff] border border-[#ded9cd] flex items-center justify-center text-[#141312] mb-3">
+                  <UploadCloud className="w-6 h-6" />
                 </div>
-                <h4 className="font-bold text-white text-base">
-                  Click or drag your room photo
+                <h4 className="font-extrabold text-[#141312] text-sm uppercase tracking-wider font-mono">
+                  Drop Room Photograph
                 </h4>
-                <p className="text-xs text-slate-300 mt-1.5 max-w-xs leading-relaxed">
-                  Unfurnished space or messy room photo (JPEG, PNG, or WebP up to 14MB).
+                <p className="text-xs text-[#736e64] mt-1.5 max-w-xs leading-relaxed">
+                  Supply an unfurnished or vacant interior photograph (JPG, PNG, WebP up to 14MB).
                 </p>
-                <div className="mt-5 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 border border-white/15 text-amber-200 text-xs font-medium">
-                  <ImageIcon className="w-3.5 h-3.5 text-amber-400" />
-                  Supports JPG, PNG &amp; WebP
+                <div className="mt-4 px-3 py-1 bg-[#ffffff] border border-[#ded9cd] text-[#5c574e] text-[11px] font-mono uppercase tracking-wider">
+                  Select Local File
                 </div>
               </div>
             ) : (
-              <div className="relative rounded-2xl overflow-hidden border border-white/20 bg-black group aspect-[4/3] shadow-lg">
+              <div className="relative border border-[#ded9cd] bg-[#141312] aspect-[4/3] overflow-hidden group">
                 <img
                   src={imagePreview}
-                  alt="Room to flip preview"
+                  alt="Original room preview"
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-black/65 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                <div className="absolute inset-0 bg-[#141312]/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="px-4 py-2 rounded-xl bg-white text-slate-900 text-xs font-black shadow-lg hover:bg-slate-100 transition"
+                    className="px-3.5 py-2 bg-[#ffffff] text-[#141312] text-xs font-mono uppercase tracking-wider font-bold hover:bg-[#f7f5f0]"
                   >
-                    Change Photo
+                    Replace Asset
                   </button>
                   <button
                     onClick={handleClear}
-                    className="px-4 py-2 rounded-xl bg-rose-600 text-white text-xs font-black shadow-lg hover:bg-rose-700 transition"
+                    className="px-3.5 py-2 bg-[#141312] text-[#ffffff] border border-[#ffffff] text-xs font-mono uppercase tracking-wider hover:bg-[#2b2926]"
                   >
                     Remove
                   </button>
                 </div>
-                <span className="absolute bottom-3 left-3 bg-black/80 backdrop-blur-md text-white text-xs px-3 py-1 rounded-lg font-bold border border-white/20">
-                  Target Room
+                <span className="absolute bottom-3 left-3 bg-[#ffffff] text-[#141312] text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 border border-[#ded9cd]">
+                  Source Spatial Void
                 </span>
               </div>
             )}
@@ -725,42 +734,46 @@ export default function Home() {
               }}
             />
 
-            {/* Quick Demo Pre-load Bar */}
-            <div className="pt-2">
-              <span className="text-xs text-amber-200/90 block mb-2 font-semibold">
-                No photo on hand? Try instant demo rooms:
+            {/* Benchmark Samples Selector */}
+            <div className="pt-2 border-t border-[#ece8df]">
+              <span className="text-[11px] font-mono uppercase tracking-wider text-[#736e64] block mb-2 font-bold">
+                Or Load Benchmark Case Study:
               </span>
-              <div className="flex gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 {DEMO_SAMPLES.map((sample, idx) => (
                   <button
                     key={sample.id}
                     onClick={() => loadSample(idx)}
                     type="button"
-                    className="flex-1 px-3 py-2.5 rounded-xl bg-white/5 border border-white/15 hover:border-amber-400/50 text-xs text-slate-200 hover:text-white transition flex items-center justify-center gap-1.5 font-semibold backdrop-blur"
+                    className="px-3 py-2 text-left bg-[#faf8f5] hover:bg-[#eeeae0] border border-[#ded9cd] text-xs font-mono transition text-[#141312] flex items-center justify-between"
                   >
-                    <Zap className="w-3.5 h-3.5 text-amber-400" />
-                    {sample.label}
+                    <span>{sample.label}</span>
+                    <ArrowRight className="w-3 h-3 text-[#8a857b]" />
                   </button>
                 ))}
               </div>
             </div>
           </div>
 
-          {/* Step 2 & 3: Room Type & Aesthetic Selection */}
-          <div className="lg:col-span-7 glass-panel-warm rounded-3xl p-6 sm:p-7 space-y-6">
-            {/* Step 2: Room Type */}
+          {/* Steps 02 & 03: Typology & Aesthetic Selectors */}
+          <div className="lg:col-span-7 bauhaus-card p-6 sm:p-7 space-y-6">
+            {/* Step 02: Room Typology */}
             <div>
-              <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-3">
+              <div className="flex items-center justify-between pb-3 border-b border-[#ece8df] mb-3">
                 <div className="flex items-center gap-2.5">
-                  <span className="w-7 h-7 rounded-xl bg-gradient-to-tr from-rose-500 to-amber-500 text-white font-black text-xs flex items-center justify-center shadow-md">
-                    2
+                  <span className="w-6 h-6 bg-[#141312] text-[#ffffff] font-mono text-xs font-bold flex items-center justify-center">
+                    02
                   </span>
-                  <h3 className="font-bold text-white text-base">Select Room Category</h3>
+                  <h3 className="font-extrabold text-[#141312] text-sm uppercase tracking-wider font-mono">
+                    Room Typology
+                  </h3>
                 </div>
-                <span className="text-xs text-amber-300 font-bold">{selectedRoomType}</span>
+                <span className="text-xs font-mono text-[#736e64] font-bold">
+                  {selectedRoomType}
+                </span>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {ROOM_TYPES.map((room) => {
                   const isSelected = selectedRoomType === room.id;
                   const Icon = room.icon;
@@ -769,42 +782,42 @@ export default function Home() {
                       key={room.id}
                       onClick={() => setSelectedRoomType(room.id)}
                       type="button"
-                      className={`p-3 rounded-xl border transition-all text-left flex items-center gap-2.5 ${
+                      className={`p-3 border text-left transition flex items-center gap-2.5 ${
                         isSelected
-                          ? "border-amber-400 bg-gradient-to-r from-rose-500/25 to-amber-500/25 text-white shadow-md ring-1 ring-amber-400/50"
-                          : "border-white/10 bg-black/30 hover:bg-black/50 text-slate-300"
+                          ? "bg-[#141312] text-[#ffffff] border-[#141312] font-bold"
+                          : "bg-[#ffffff] text-[#47433c] border-[#ded9cd] hover:border-[#141312] hover:bg-[#faf8f5]"
                       }`}
                     >
-                      <div
-                        className={`w-7 h-7 rounded-lg flex items-center justify-center ${
-                          isSelected ? "bg-gradient-to-tr from-rose-500 to-amber-500 text-white" : "bg-white/10 text-slate-300"
-                        }`}
-                      >
-                        <Icon className="w-4 h-4" />
+                      <Icon className="w-4 h-4 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs leading-none truncate">{room.name}</div>
+                        <div className={`text-[9px] font-mono mt-1 ${isSelected ? "text-[#a39e93]" : "text-[#8a857b]"}`}>
+                          {room.code}
+                        </div>
                       </div>
-                      <span className="text-xs font-bold">{room.name}</span>
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            {/* Step 3: Interior Style */}
-            <div id="styles">
-              <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-3">
+            {/* Step 03: Aesthetic Style */}
+            <div id="typology">
+              <div className="flex items-center justify-between pb-3 border-b border-[#ece8df] mb-3">
                 <div className="flex items-center gap-2.5">
-                  <span className="w-7 h-7 rounded-xl bg-gradient-to-tr from-rose-500 to-amber-500 text-white font-black text-xs flex items-center justify-center shadow-md">
-                    3
+                  <span className="w-6 h-6 bg-[#141312] text-[#ffffff] font-mono text-xs font-bold flex items-center justify-center">
+                    03
                   </span>
-                  <h3 className="font-bold text-white text-base">Choose Design Aesthetic</h3>
+                  <h3 className="font-extrabold text-[#141312] text-sm uppercase tracking-wider font-mono">
+                    Interior Aesthetic
+                  </h3>
                 </div>
-                <span className="text-xs text-amber-300 font-bold flex items-center gap-1">
-                  <Palette className="w-3.5 h-3.5 text-amber-400" />
+                <span className="text-xs font-mono text-[#736e64] font-bold">
                   {selectedStyle}
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[380px] overflow-y-auto pr-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[380px] overflow-y-auto pr-1">
                 {STYLES.map((style) => {
                   const isSelected = selectedStyle === style.id;
                   return (
@@ -812,81 +825,72 @@ export default function Home() {
                       key={style.id}
                       onClick={() => setSelectedStyle(style.id)}
                       type="button"
-                      className={`p-4 rounded-2xl border transition-all text-left relative flex flex-col justify-between overflow-hidden group card-hover-warm ${
+                      className={`p-4 border text-left transition flex flex-col justify-between ${
                         isSelected
-                          ? "border-amber-400 bg-gradient-to-br from-rose-950/70 via-purple-950/60 to-black ring-2 ring-amber-400/50 shadow-xl glow-warm"
-                          : "border-white/15 bg-black/35 hover:border-white/30 hover:bg-black/55"
+                          ? "bg-[#141312] text-[#ffffff] border-[#141312] shadow-sm"
+                          : "bg-[#ffffff] text-[#141312] border-[#ded9cd] hover:border-[#141312] hover:bg-[#faf8f5]"
                       }`}
                     >
-                      <div className="relative z-10">
-                        <div className="flex items-center justify-between mb-1.5">
-                          <span
-                            className={`text-[10px] uppercase font-black tracking-wider px-2 py-0.5 rounded-full ${
-                              isSelected
-                                ? "bg-amber-400/25 text-amber-200 border border-amber-300/40"
-                                : "bg-white/10 text-slate-300"
-                            }`}
-                          >
-                            {style.tag}
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className={`text-[10px] font-mono tracking-widest ${isSelected ? "text-[#a39e93]" : "text-[#8a857b]"}`}>
+                            {style.code}
                           </span>
-                          {isSelected && <CheckCircle2 className="w-4 h-4 text-amber-400" />}
+                          {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-[#ffffff]" />}
                         </div>
-                        <h4 className="font-black text-sm text-white">{style.name}</h4>
-                        <p className="text-[11px] text-slate-300 mt-1 line-clamp-2 leading-relaxed">
+                        <h4 className="font-extrabold text-sm">{style.name}</h4>
+                        <p className={`text-[11px] mt-1 line-clamp-2 leading-relaxed ${isSelected ? "text-[#ded9cd]" : "text-[#5c574e]"}`}>
                           {style.subtitle}
                         </p>
                       </div>
-                      <div className="mt-3 text-[10px] text-amber-300/90 font-mono flex items-center gap-1">
-                        &bull; {style.imageHint}
-                      </div>
+                      <div className={`mt-3 text-[10px] font-mono border-t pt-2 ${
+                        isSelected ? "border-[#2a2825] text-[#ded9cd]" : "border-[#ece8df] text-[#736e64]"
+                      }`} dangerouslySetInnerHTML={{ __html: style.material }} />
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            {/* Launch Action Button */}
-            <div className="pt-2 border-t border-white/10">
+            {/* Staging Execution Button */}
+            <div className="pt-2 border-t border-[#ece8df]">
               <button
                 onClick={handleDecorate}
                 disabled={!imagePreview || isLoading}
-                className={`w-full py-4 rounded-2xl font-black text-sm text-white shadow-2xl flex items-center justify-center gap-2.5 transition transform active:scale-98 ${
+                className={`w-full py-4 text-xs font-mono uppercase tracking-widest flex items-center justify-center gap-2 transition ${
                   !imagePreview || isLoading
-                    ? "bg-slate-800 text-slate-500 cursor-not-allowed border border-white/10"
-                    : "bg-gradient-to-r from-rose-500 via-amber-500 to-orange-500 hover:from-rose-600 hover:via-amber-600 hover:to-orange-600 shadow-amber-500/25 cursor-pointer glow-warm"
+                    ? "bg-[#ded9cd] text-[#8a857b] cursor-not-allowed border border-[#ded9cd]"
+                    : "bg-[#141312] hover:bg-[#2b2926] text-[#ffffff] font-bold cursor-pointer"
                 }`}
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Flipping Room with AI...</span>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Executing Spatial Staging...</span>
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-5 h-5 text-amber-200" />
-                    <span>
-                      Flip {selectedRoomType} into {selectedStyle}
-                    </span>
+                    <span>Render {selectedRoomType} // {selectedStyle}</span>
                     <ArrowRight className="w-4 h-4 ml-1" />
                   </>
                 )}
               </button>
 
-              {/* Progress feedback bar */}
+              {/* Progress Indicator */}
               {isLoading && (
-                <div className="mt-4 space-y-2 animate-fade-in">
-                  <div className="w-full bg-black/60 rounded-full h-2 overflow-hidden border border-white/15">
+                <div className="mt-4 space-y-2">
+                  <div className="w-full bg-[#eeeae0] h-1.5 overflow-hidden">
                     <div
-                      className="bg-gradient-to-r from-rose-500 via-amber-400 to-orange-400 h-full transition-all duration-500 rounded-full shadow-lg"
+                      className="bg-[#141312] h-full transition-all duration-500"
                       style={{ width: `${loadingProgress}%` }}
                     />
                   </div>
-                  <div className="flex items-center justify-between text-xs text-amber-200">
+                  <div className="flex items-center justify-between text-xs font-mono text-[#5c574e]">
                     <span className="flex items-center gap-2">
-                      <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-400" />
+                      <Loader2 className="w-3 h-3 animate-spin text-[#141312]" />
                       {loadingStatus}
                     </span>
-                    <span className="font-mono text-amber-300 font-bold">{loadingProgress}%</span>
+                    <span className="font-bold text-[#141312]">{loadingProgress}%</span>
                   </div>
                 </div>
               )}
@@ -894,44 +898,43 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Results Studio Showcase */}
+        {/* Results Presentation Deck */}
         {generatedImage && (
           <div
             ref={resultsRef}
-            className="mt-16 glass-panel-warm rounded-3xl p-6 sm:p-10 border border-amber-400/40 shadow-2xl space-y-8 animate-fade-in ring-1 ring-amber-400/20"
+            className="mt-16 bauhaus-card p-6 sm:p-10 border-2 border-[#141312] space-y-8"
           >
             {/* Results Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-white/10 gap-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-[#ded9cd] gap-4">
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-rose-500/20 to-amber-500/20 text-amber-300 border border-amber-400/30 text-xs font-bold mb-1">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                  Space Flip Completed
+                <div className="text-[11px] font-mono uppercase tracking-widest text-[#736e64] mb-1">
+                  Staging Manifest // Completed
                 </div>
-                <h3 className="text-2xl sm:text-3xl font-black text-white">
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-[#141312]">
                   {selectedStyle} {selectedRoomType}
                 </h3>
               </div>
 
-              {/* View Switcher & Action Buttons */}
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="inline-flex rounded-xl bg-black/60 p-1 border border-white/15 text-xs font-bold">
+              {/* Controls */}
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="inline-flex border border-[#141312] text-xs font-mono uppercase">
                   <button
                     onClick={() => setComparisonMode("slider")}
-                    className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition ${
+                    className={`px-3 py-1.5 flex items-center gap-1.5 transition ${
                       comparisonMode === "slider"
-                        ? "bg-gradient-to-r from-rose-500 to-amber-500 text-white shadow-md"
-                        : "text-slate-300 hover:text-white"
+                        ? "bg-[#141312] text-[#ffffff] font-bold"
+                        : "bg-[#ffffff] text-[#141312] hover:bg-[#faf8f5]"
                     }`}
                   >
                     <Sliders className="w-3.5 h-3.5" />
-                    Split Slider
+                    Split Rule
                   </button>
                   <button
                     onClick={() => setComparisonMode("side-by-side")}
-                    className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition ${
+                    className={`px-3 py-1.5 flex items-center gap-1.5 transition ${
                       comparisonMode === "side-by-side"
-                        ? "bg-gradient-to-r from-rose-500 to-amber-500 text-white shadow-md"
-                        : "text-slate-300 hover:text-white"
+                        ? "bg-[#141312] text-[#ffffff] font-bold"
+                        : "bg-[#ffffff] text-[#141312] hover:bg-[#faf8f5]"
                     }`}
                   >
                     <Columns className="w-3.5 h-3.5" />
@@ -941,25 +944,24 @@ export default function Home() {
 
                 <button
                   onClick={handleDownload}
-                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-rose-500 via-amber-500 to-orange-500 hover:from-rose-600 hover:via-amber-600 hover:to-orange-600 text-white text-xs font-black shadow-lg glow-amber flex items-center gap-2 transition"
+                  className="px-4 py-2 bg-[#141312] text-[#ffffff] hover:bg-[#2b2926] text-xs font-mono uppercase tracking-wider font-bold flex items-center gap-2 transition"
                 >
-                  <Download className="w-4 h-4" />
-                  Download 8K
+                  <Download className="w-3.5 h-3.5" />
+                  Export 8K Asset
                 </button>
                 <button
                   onClick={handleClear}
-                  className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-slate-200 text-xs font-bold flex items-center gap-2 transition"
+                  className="px-4 py-2 bg-[#ffffff] border border-[#ded9cd] hover:border-[#141312] text-[#141312] text-xs font-mono uppercase tracking-wider transition"
                 >
-                  <RotateCcw className="w-4 h-4" />
-                  Flip Another Room
+                  New Spatial Shell
                 </button>
               </div>
             </div>
 
             {/* Comparison Display */}
             {comparisonMode === "slider" ? (
-              <div className="relative rounded-3xl overflow-hidden border border-white/20 shadow-2xl bg-black aspect-[16/10] sm:aspect-[16/9] select-none">
-                {/* Background (After image) */}
+              <div className="relative border-2 border-[#141312] bg-[#ffffff] aspect-[16/10] sm:aspect-[16/9] overflow-hidden select-none">
+                {/* Background Staged Image */}
                 <img
                   src={generatedImage}
                   alt="Decorated room after"
@@ -967,7 +969,7 @@ export default function Home() {
                   draggable={false}
                 />
 
-                {/* Foreground (Before image) */}
+                {/* Foreground Original Empty Image */}
                 <div
                   className="absolute inset-0 overflow-hidden"
                   style={{ clipPath: `polygon(0 0, ${sliderPosition}% 0, ${sliderPosition}% 100%, 0 100%)` }}
@@ -982,13 +984,13 @@ export default function Home() {
                   )}
                 </div>
 
-                {/* Vertical Divider */}
+                {/* Vertical Dividing Rule */}
                 <div
-                  className="absolute top-0 bottom-0 w-1 bg-gradient-to-b from-amber-400 via-rose-500 to-amber-300 shadow-2xl z-20 pointer-events-none"
+                  className="absolute top-0 bottom-0 w-[2px] bg-[#ffffff] z-20 pointer-events-none shadow-[0_0_10px_rgba(0,0,0,0.5)]"
                   style={{ left: `${sliderPosition}%` }}
                 >
-                  <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-11 h-11 rounded-full bg-gradient-to-tr from-amber-400 via-rose-500 to-orange-400 text-white shadow-xl flex items-center justify-center font-black text-sm tracking-tighter border-2 border-white">
-                    &lsaquo;&rsaquo;
+                  <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-9 h-9 rounded-full bg-[#ffffff] text-[#141312] border-2 border-[#141312] flex items-center justify-center font-mono font-black text-xs shadow-md">
+                    &harr;
                   </div>
                 </div>
 
@@ -1004,30 +1006,22 @@ export default function Home() {
                 />
 
                 {/* Badges */}
-                <div className="absolute top-4 left-4 z-10 px-3.5 py-1.5 rounded-xl bg-black/75 backdrop-blur-md text-white text-xs font-bold border border-white/20 pointer-events-none">
-                  Before: Empty Room
+                <div className="absolute top-4 left-4 z-10 px-3 py-1 bg-[#141312] text-[#ffffff] font-mono text-[11px] uppercase tracking-widest pointer-events-none">
+                  01 // BARE SHELL
                 </div>
-                <div className="absolute top-4 right-4 z-10 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-rose-600 to-amber-600 backdrop-blur-md text-white text-xs font-bold border border-white/25 flex items-center gap-1.5 pointer-events-none shadow-lg">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-200" />
-                  After: FlipMySpace ({selectedStyle})
-                </div>
-
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 px-4 py-1.5 rounded-full bg-black/70 backdrop-blur border border-white/15 text-amber-200 text-xs pointer-events-none flex items-center gap-2 shadow-lg">
-                  <Sliders className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Drag slider left and right to inspect the flip</span>
+                <div className="absolute top-4 right-4 z-10 px-3 py-1 bg-[#ffffff] text-[#141312] border border-[#141312] font-mono text-[11px] uppercase tracking-widest pointer-events-none font-bold">
+                  02 // STAGED ({selectedStyle})
                 </div>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Original Room */}
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between text-xs font-black text-slate-300">
-                    <span>Original Room</span>
-                    <span className="uppercase text-[10px] tracking-wider px-2.5 py-0.5 rounded-full bg-white/10 border border-white/15">
-                      Before
-                    </span>
+                  <div className="flex items-center justify-between text-xs font-mono uppercase tracking-wider text-[#736e64]">
+                    <span>01 // Source Spatial Void</span>
+                    <span className="font-bold text-[#141312]">BEFORE</span>
                   </div>
-                  <div className="relative rounded-2xl overflow-hidden border border-white/15 bg-black aspect-[4/3] shadow-md">
+                  <div className="relative border border-[#ded9cd] bg-[#141312] aspect-[4/3] overflow-hidden">
                     {imagePreview && (
                       <img
                         src={imagePreview}
@@ -1038,30 +1032,24 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* AI Staged Room */}
+                {/* Staged Room */}
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between text-xs font-black text-amber-300">
-                    <span className="flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                      FlipMySpace Render ({selectedStyle})
-                    </span>
-                    <span className="uppercase text-[10px] tracking-wider px-2.5 py-0.5 rounded-full bg-gradient-to-r from-rose-500/30 to-amber-500/30 text-amber-200 border border-amber-400/40 font-black">
-                      After
-                    </span>
+                  <div className="flex items-center justify-between text-xs font-mono uppercase tracking-wider text-[#141312]">
+                    <span className="font-bold">02 // Staged Synthesis ({selectedStyle})</span>
+                    <span className="font-bold">AFTER</span>
                   </div>
-                  <div className="relative rounded-2xl overflow-hidden border-2 border-amber-400/60 bg-black aspect-[4/3] group shadow-2xl">
+                  <div className="relative border-2 border-[#141312] bg-[#141312] aspect-[4/3] overflow-hidden group">
                     <img
                       src={generatedImage}
                       alt="Decorated room"
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <div className="absolute inset-0 bg-[#141312]/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <button
                         onClick={handleDownload}
-                        className="px-5 py-2.5 rounded-xl bg-white text-slate-900 text-xs font-black shadow-lg hover:bg-slate-100 flex items-center gap-2"
+                        className="px-4 py-2 bg-[#ffffff] text-[#141312] font-mono text-xs uppercase tracking-wider font-bold shadow-md hover:bg-[#f7f5f0]"
                       >
-                        <Download className="w-4 h-4" />
-                        Download High-Res
+                        Export 8K Asset
                       </button>
                     </div>
                   </div>
@@ -1071,98 +1059,96 @@ export default function Home() {
 
             {/* Gemini Architectural Analysis Card */}
             {roomAnalysis && (
-              <div className="p-5 rounded-2xl bg-black/50 border border-white/15 flex items-start gap-3.5 text-xs text-slate-200 backdrop-blur">
-                <Info className="w-5 h-5 flex-shrink-0 text-amber-400 mt-0.5" />
-                <div>
-                  <h4 className="font-black text-white text-sm mb-1 flex items-center gap-1.5">
-                    Gemini 3.8 Spatial Layout Scan
-                  </h4>
-                  <p className="leading-relaxed text-slate-300">{roomAnalysis}</p>
+              <div className="p-5 bg-[#f7f5f0] border border-[#ded9cd] text-xs font-mono text-[#47433c] leading-relaxed">
+                <div className="font-bold text-[#141312] uppercase tracking-wider mb-1 flex items-center gap-2">
+                  <span>Gemini 3.8 Spatial Analysis Log //</span>
                 </div>
+                <p>{roomAnalysis}</p>
               </div>
             )}
 
             {/* Informational Notice */}
             {generationNotice && (
-              <div className="p-4 rounded-2xl bg-gradient-to-r from-rose-950/50 to-amber-950/50 border border-amber-400/30 text-xs text-amber-200 flex items-start gap-3 backdrop-blur">
-                <Sparkles className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
-                <span>{generationNotice}</span>
+              <div className="p-4 bg-[#fcfbf9] border border-[#ded9cd] text-xs font-mono text-[#5c574e]">
+                <span>SYSTEM DISPATCH // {generationNotice}</span>
               </div>
             )}
           </div>
         )}
       </section>
 
-      {/* Feature Section with Warm Energetic Cards */}
-      <section id="features" className="relative z-10 py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/10">
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="text-xs font-black text-amber-400 tracking-wider uppercase">
-            Built for Real Estate &amp; Homeowners
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight mt-2">
-            Why FlipMySpace Outperforms Traditional Staging
+      {/* Bauhaus Architectural Principles Section */}
+      <section id="principles" className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-[#ded9cd]">
+        <div className="max-w-2xl mb-12">
+          <div className="text-xs font-mono uppercase tracking-widest text-[#8a857b] mb-1">
+            Methodology // International Standard
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#141312]">
+            Bauhaus Principles in Computational Staging
           </h2>
-          <p className="mt-3 text-sm sm:text-base text-slate-300">
-            Powered by spatial computer vision that respects true room dimensions without artificial warping.
+          <p className="mt-2 text-sm text-[#5c574e] leading-relaxed">
+            Eliminating superfluous decoration in software. Designed for architectural integrity, instant comprehension, and universal accessibility.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="glass-panel-warm p-8 rounded-3xl space-y-4 hover:border-amber-400/50 transition">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-500/20 to-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-400 shadow-md">
-              <ShieldCheck className="w-6 h-6" />
-            </div>
-            <h3 className="text-lg font-black text-white">Zero Structural Distortion</h3>
-            <p className="text-sm text-slate-300 leading-relaxed">
-              Our Gemini 3.8 vision pipeline pins walls, doorways, floor transitions, and ceiling lines so your space stays authentic to real-life dimensions.
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bauhaus-card p-8 space-y-3">
+            <div className="font-mono text-2xl font-black text-[#141312]">01</div>
+            <h3 className="text-base font-extrabold uppercase tracking-wider font-mono text-[#141312]">
+              Structural Invariance
+            </h3>
+            <p className="text-xs text-[#5c574e] leading-relaxed font-sans">
+              No architectural warping. Gemini 3.8 Flash locks the horizon line, perimeter walls, and window embrasures before placing furnishings into the void.
             </p>
           </div>
 
-          <div className="glass-panel-warm p-8 rounded-3xl space-y-4 hover:border-amber-400/50 transition">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-500/20 to-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-400 shadow-md">
-              <Palette className="w-6 h-6" />
-            </div>
-            <h3 className="text-lg font-black text-white">Curated Luxury Aesthetics</h3>
-            <p className="text-sm text-slate-300 leading-relaxed">
-              Choose from Modern Minimalist, Japandi, Scandinavian, and retro styles. Each theme sources designer-grade furniture, bouclé textures, and warm lighting.
+          <div className="bauhaus-card p-8 space-y-3">
+            <div className="font-mono text-2xl font-black text-[#141312]">02</div>
+            <h3 className="text-base font-extrabold uppercase tracking-wider font-mono text-[#141312]">
+              Disciplined Analogous Tones
+            </h3>
+            <p className="text-xs text-[#5c574e] leading-relaxed font-sans">
+              Form over neon flash. Neutral whites, concrete greys, and warm stone beiges prioritize the photography and provide WCAG AAA universal contrast.
             </p>
           </div>
 
-          <div className="glass-panel-warm p-8 rounded-3xl space-y-4 hover:border-amber-400/50 transition">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-500/20 to-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-400 shadow-md">
-              <Zap className="w-6 h-6" />
-            </div>
-            <h3 className="text-lg font-black text-white">Instant Listing-Ready Renders</h3>
-            <p className="text-sm text-slate-300 leading-relaxed">
-              Skip weeks of expensive physical furniture staging or complex 3D CAD modeling. Receive high-res staged spaces in seconds ready for social media or MLS.
+          <div className="bauhaus-card p-8 space-y-3">
+            <div className="font-mono text-2xl font-black text-[#141312]">03</div>
+            <h3 className="text-base font-extrabold uppercase tracking-wider font-mono text-[#141312]">
+              Direct Spatial Ingestion
+            </h3>
+            <p className="text-xs text-[#5c574e] leading-relaxed font-sans">
+              Your uploaded photograph is fed inline as the direct spatial baseline. Furnishings are computed to scale with natural light reflectance.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="relative z-10 border-t border-white/10 bg-black/60 backdrop-blur-xl py-12 px-4 sm:px-6 lg:px-8 mt-auto">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-slate-300">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-rose-500 to-amber-500 flex items-center justify-center text-white shadow-md">
-              <Flame className="w-4 h-4" />
+      {/* Modernist Footer */}
+      <footer className="border-t border-[#ded9cd] bg-[#ffffff] py-12 px-4 sm:px-6 lg:px-8 mt-auto text-xs font-mono text-[#736e64]">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-3">
+            <div className="w-5 h-5 bg-[#141312] text-[#ffffff] flex items-center justify-center font-bold text-[10px]">
+              FM
             </div>
-            <span className="font-black text-white text-sm">FlipMySpace</span>
-            <span>&bull; AI Spatial Room Remodeling &amp; Virtual Staging</span>
+            <span className="font-bold text-[#141312] uppercase tracking-wider">FlipMySpace</span>
+            <span>&bull; Architectural Spatial Remodeling</span>
           </div>
-          <div className="flex items-center gap-6 font-semibold">
-            <a href="#demo" className="hover:text-amber-300 transition">
-              Live Slider
+
+          <div className="flex items-center gap-6 uppercase tracking-wider">
+            <a href="#demo" className="hover:text-[#141312] transition">
+              Comparison
             </a>
-            <a href="#styles" className="hover:text-amber-300 transition">
-              Aesthetics
+            <a href="#typology" className="hover:text-[#141312] transition">
+              Typology
             </a>
-            <a href="#features" className="hover:text-amber-300 transition">
-              Technology
+            <a href="#principles" className="hover:text-[#141312] transition">
+              Principles
             </a>
           </div>
-          <div className="text-slate-400 font-medium">
-            &copy; {new Date().getFullYear()} FlipMySpace. All rights reserved.
+
+          <div>
+            &copy; {new Date().getFullYear()} FlipMySpace. Bauhaus Edition.
           </div>
         </div>
       </footer>

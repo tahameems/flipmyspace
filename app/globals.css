@@ -3,84 +3,83 @@
 @tailwind utilities;
 
 :root {
-  --background-start: #0f0715;
-  --background-mid: #1f0d2b;
-  --background-end: #0a0e1c;
-  --foreground: #f8fafc;
+  --bauhaus-bg: #f7f5f0;
+  --bauhaus-surface: #ffffff;
+  --bauhaus-beige: #eeeae0;
+  --bauhaus-stone: #ded9cd;
+  --bauhaus-grey-light: #ece8df;
+  --bauhaus-grey-mid: #8a857b;
+  --bauhaus-grey-dark: #47433c;
+  --bauhaus-black: #141312;
 }
 
 body {
-  color: var(--foreground);
-  background: radial-gradient(circle at 15% 15%, rgba(244, 63, 94, 0.22) 0%, transparent 45%),
-    radial-gradient(circle at 85% 10%, rgba(245, 158, 11, 0.25) 0%, transparent 40%),
-    radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.16) 0%, transparent 55%),
-    radial-gradient(circle at 80% 85%, rgba(251, 146, 60, 0.20) 0%, transparent 45%),
-    linear-gradient(135deg, #0e0515 0%, #1a0826 35%, #180d29 65%, #080c18 100%);
-  background-attachment: fixed;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: var(--bauhaus-bg);
+  color: var(--bauhaus-black);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Arial", sans-serif;
+  letter-spacing: -0.015em;
   overflow-x: hidden;
   min-height: 100vh;
 }
 
-/* Warm, energetic glows */
-.glow-warm {
-  box-shadow: 0 0 50px -10px rgba(245, 158, 11, 0.35), 0 0 25px -5px rgba(244, 63, 94, 0.3);
+/* Bauhaus Grid & Structural Borders */
+.bauhaus-card {
+  background-color: #ffffff;
+  border: 1px solid var(--bauhaus-stone);
+  box-shadow: 0 1px 3px rgba(20, 19, 18, 0.04);
 }
 
-.glow-coral {
-  box-shadow: 0 0 40px -10px rgba(244, 63, 94, 0.35);
+.bauhaus-card-beige {
+  background-color: #fcfbf9;
+  border: 1px solid var(--bauhaus-stone);
 }
 
-.glow-amber {
-  box-shadow: 0 0 35px -8px rgba(251, 191, 36, 0.4);
+.bauhaus-border {
+  border-color: var(--bauhaus-stone);
 }
 
-/* Warm Frosted Glass Panels */
-.glass-panel-warm {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%),
-    rgba(23, 12, 33, 0.65);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+/* High-contrast functional action button */
+.bauhaus-btn-primary {
+  background-color: var(--bauhaus-black);
+  color: #ffffff;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.glass-nav-warm {
-  background: linear-gradient(180deg, rgba(26, 10, 36, 0.85) 0%, rgba(14, 5, 21, 0.80) 100%);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+.bauhaus-btn-primary:hover:not(:disabled) {
+  background-color: #2b2926;
+  transform: translateY(-1px);
 }
 
-/* Card hover glow */
-.card-hover-warm {
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+.bauhaus-btn-secondary {
+  background-color: #ffffff;
+  color: var(--bauhaus-black);
+  border: 1px solid var(--bauhaus-stone);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.card-hover-warm:hover {
-  transform: translateY(-2px);
-  border-color: rgba(251, 146, 60, 0.5);
-  box-shadow: 0 12px 30px -10px rgba(244, 63, 94, 0.35);
+.bauhaus-btn-secondary:hover:not(:disabled) {
+  background-color: var(--bauhaus-beige);
+  border-color: var(--bauhaus-grey-mid);
 }
 
-/* Slider Custom Styler */
+/* Custom interactive before/after split slider handle */
 .slider-thumb::-webkit-slider-thumb {
   appearance: none;
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   background: #ffffff;
+  border: 2px solid var(--bauhaus-black);
   cursor: ew-resize;
-  box-shadow: 0 0 20px rgba(245, 158, 11, 0.6), 0 0 10px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 14px rgba(20, 19, 18, 0.2);
 }
 
 .slider-thumb::-moz-range-thumb {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   background: #ffffff;
+  border: 2px solid var(--bauhaus-black);
   cursor: ew-resize;
-  box-shadow: 0 0 20px rgba(245, 158, 11, 0.6), 0 0 10px rgba(0, 0, 0, 0.5);
-  border: none;
+  box-shadow: 0 4px 14px rgba(20, 19, 18, 0.2);
 }

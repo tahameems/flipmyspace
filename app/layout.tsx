@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "FlipMySpace - Instant AI Room Staging & Interior Remodeling",
-  description: "Reimagine, furnish, and transform any empty space in seconds with AI. Photorealistic staging, custom aesthetics, and architectural precision.",
+  title: "FlipMySpace — Architectural AI Spatial Staging",
+  description: "Functional, precise room staging and architectural remodeling powered by spatial AI. Designed with Bauhaus principles: form follows function, absolute clarity, universal accessibility.",
 };
 
 export default function RootLayout({
@@ -13,7 +13,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body className="min-h-screen text-slate-100 antialiased selection:bg-amber-500/30 selection:text-amber-200">
+      <body className="min-h-screen bg-[#f7f6f2] text-[#1a1917] antialiased selection:bg-[#1a1917] selection:text-[#f7f6f2]">
         {children}
       </body>
     </html>
