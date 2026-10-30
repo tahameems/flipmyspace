@@ -77,6 +77,15 @@ body {
   border-color: var(--border-strong);
 }
 
+/* Hide scrollbar for carousel but keep functionality */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* Custom interactive slider handle */
 .slider-thumb::-webkit-slider-thumb {
   appearance: none;

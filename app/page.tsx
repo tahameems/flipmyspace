@@ -24,7 +24,9 @@ import {
   Info,
   Check,
   HeartHandshake,
-  Compass
+  Compass,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 
 interface StyleOption {
@@ -33,6 +35,15 @@ interface StyleOption {
   tag: string;
   subtitle: string;
   paletteHint: string;
+}
+
+interface CarouselStyle {
+  id: string;
+  name: string;
+  tag: string;
+  description: string;
+  paletteHint: string;
+  image: string;
 }
 
 interface RoomTypeOption {
@@ -50,50 +61,88 @@ const ROOM_TYPES: RoomTypeOption[] = [
   { id: "Bathroom", name: "Bathroom", icon: Bath },
 ];
 
-const STYLES: StyleOption[] = [
-  {
-    id: "Modern Minimalist",
-    name: "Modern Minimalist",
-    tag: "Clean & Serene",
-    subtitle: "Low-profile seating, warm neutral undertones & concealed architectural joinery",
-    paletteHint: "Cream bouclé, warm plaster & brushed bronze"
-  },
+const CAROUSEL_STYLES: CarouselStyle[] = [
   {
     id: "Scandinavian",
     name: "Scandinavian",
-    tag: "Warm & Light",
-    subtitle: "Blond ash woodwork, tactile hygge wool, airy linen drapery & gentle daylight",
-    paletteHint: "Natural oak, shearling & warm chalk tones"
+    tag: "Clean & Light",
+    description: "Features clean lines, functional furniture, light woods, and a soft palette of whites, greys, and pastels.",
+    paletteHint: "Light Woods &bull; Soft Greys &bull; Whites & Pastels",
+    image: "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=900&q=80",
   },
   {
     id: "Japandi",
     name: "Japandi",
-    tag: "Zen Harmony",
-    subtitle: "Wabi-sabi equilibrium uniting Japanese quietude with Nordic organic craftsmanship",
-    paletteHint: "Hinoki cedar, washi paper & earthen clay"
+    tag: "Zen Equilibrium",
+    description: "Combines Japanese minimalism and Scandinavian warmth, using natural stone, paper, warm wood, and earthy tones like black and dark green.",
+    paletteHint: "Natural Stone &bull; Paper &bull; Dark Green & Black",
+    image: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=900&q=80",
   },
   {
-    id: "Industrial",
-    name: "Industrial",
-    tag: "Urban Character",
-    subtitle: "Warm exposed masonry, matte iron accents, cognac leather & warehouse glazing",
-    paletteHint: "Reclaimed timber, patina steel & amber glow"
+    id: "Modern",
+    name: "Modern",
+    tag: "Sleek & Architectural",
+    description: "Emphasizes simplicity, clean architectural lines, neutral color schemes, and sleek materials like glass and metal.",
+    paletteHint: "Glass & Metal &bull; Neutral Palettes &bull; Clean Lines",
+    image: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=900&q=80",
   },
   {
     id: "Mid-Century Modern",
     name: "Mid-Century Modern",
-    tag: "Timeless Craft",
-    subtitle: "Sculptural walnut curves, tapered silhouettes, brass accents & retro olive warmth",
-    paletteHint: "Oiled walnut, brass & warm textured weave"
+    tag: "1950s Retro Iconic",
+    description: "Inspired by the 1950s and 1960s with retro organic shapes, iconic show-wood furniture, vibrant accents, and warm woods.",
+    paletteHint: "Oiled Walnut &bull; Retro Organic Shapes &bull; Show-wood",
+    image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=900&q=80",
   },
   {
-    id: "Bohemian",
-    name: "Bohemian",
-    tag: "Earthy & Layered",
-    subtitle: "Handwoven kilim rugs, terracotta pottery, organic rattan & lush cascading greenery",
-    paletteHint: "Terracotta, woven jute & desert botanicals"
+    id: "Minimalism",
+    name: "Minimalism",
+    tag: "Open Negative Space",
+    description: "Focuses on open negative space, uncluttered surfaces, multi-functional furniture, and a quiet, monochrome color scheme.",
+    paletteHint: "Monochrome &bull; Uncluttered Surfaces &bull; Multi-functional",
+    image: "https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    id: "Industrial",
+    name: "Industrial",
+    tag: "Raw Architectural",
+    description: "Uses raw, unfinished elements such as exposed brick walls, metal pipes, concrete floors, and weathered leather.",
+    paletteHint: "Exposed Brick &bull; Metal Pipes &bull; Weathered Leather",
+    image: "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    id: "Bohemian (Boho)",
+    name: "Bohemian (Boho)",
+    tag: "Eclectic & Layered",
+    description: "Highlights an eclectic, free-spirited mix of vintage finds, vibrant layered patterns, plants, and natural textiles like rattan and cotton.",
+    paletteHint: "Rattan & Cotton &bull; Vintage Patterns &bull; Botanicals",
+    image: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    id: "Traditional",
+    name: "Traditional",
+    tag: "European Heritage",
+    description: "Draws from 18th- and 19th-century European heritage, featuring symmetrical layouts, dark ornate woods, and rich fabrics like velvet or brocade.",
+    paletteHint: "Dark Ornate Woods &bull; Velvet &bull; Brocade Fabrics",
+    image: "https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    id: "Transitional",
+    name: "Transitional",
+    tag: "Classic Meets Modern",
+    description: "Bridges classic and modern design by combining traditional architectural details with contemporary neutral furnishings.",
+    paletteHint: "Architectural Moulding &bull; Contemporary Neutrals",
+    image: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=900&q=80",
   },
 ];
+
+const STYLES: StyleOption[] = CAROUSEL_STYLES.map((s) => ({
+  id: s.name,
+  name: s.name,
+  tag: s.tag,
+  subtitle: s.description,
+  paletteHint: s.paletteHint,
+}));
 
 // Verified 1:1 camera-angle matching virtual staging pairs
 const DEMO_SAMPLES = [
@@ -116,7 +165,7 @@ const DEMO_SAMPLES = [
 ];
 
 export default function Home() {
-  const [selectedStyle, setSelectedStyle] = useState<string>("Modern Minimalist");
+  const [selectedStyle, setSelectedStyle] = useState<string>("Scandinavian");
   const [selectedRoomType, setSelectedRoomType] = useState<string>("Living Room");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -150,6 +199,19 @@ export default function Home() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const studioRef = useRef<HTMLDivElement | null>(null);
   const resultsRef = useRef<HTMLDivElement | null>(null);
+  const carouselRef = useRef<HTMLDivElement | null>(null);
+
+  const scrollCarousel = (direction: "left" | "right") => {
+    if (carouselRef.current) {
+      const scrollAmount = direction === "left" ? -380 : 380;
+      carouselRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    }
+  };
+
+  const handleSelectCarouselStyle = (styleName: string) => {
+    setSelectedStyle(styleName);
+    studioRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   // Multi-phase loading status
   useEffect(() => {
@@ -373,8 +435,8 @@ export default function Home() {
             <a href="#showcase" className="hover:text-[#1c1917] transition">
               Live Showcase
             </a>
-            <a href="#aesthetics" className="hover:text-[#1c1917] transition">
-              Aesthetics
+            <a href="#styles-carousel" className="hover:text-[#1c1917] transition">
+              Design Styles
             </a>
             <a href="#standards" className="hover:text-[#1c1917] transition">
               Standards
@@ -531,6 +593,111 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Design Styles Carousel Section */}
+      <section id="styles-carousel" className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full border-t border-[#e8e2d5]">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#8c3817] uppercase tracking-wider mb-1">
+              <Sparkles className="w-3.5 h-3.5 text-[#c25e37]" />
+              <span>Interior Design Archetypes</span>
+            </div>
+            <h2 className="text-3xl font-extrabold tracking-tight text-[#1c1917]">
+              Explore Makeover Styles
+            </h2>
+            <p className="mt-1 text-sm text-[#57534e]">
+              Browse 9 curated design styles calibrated for spatial harmony. Click any archetype to stage your room in that specific style.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2.5">
+            <button
+              onClick={() => scrollCarousel("left")}
+              type="button"
+              aria-label="Scroll left"
+              className="w-10 h-10 rounded-xl border border-[#e8e2d5] bg-white hover:bg-[#f4efe6] text-[#1c1917] flex items-center justify-center transition shadow-sm active:scale-95"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => scrollCarousel("right")}
+              type="button"
+              aria-label="Scroll right"
+              className="w-10 h-10 rounded-xl border border-[#e8e2d5] bg-white hover:bg-[#f4efe6] text-[#1c1917] flex items-center justify-center transition shadow-sm active:scale-95"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Carousel Track */}
+        <div
+          ref={carouselRef}
+          className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-6 pt-1 no-scrollbar scroll-smooth"
+        >
+          {CAROUSEL_STYLES.map((style) => {
+            const isSelected = selectedStyle === style.name;
+            return (
+              <div
+                key={style.id}
+                className={`min-w-[300px] max-w-[320px] sm:min-w-[340px] sm:max-w-[360px] flex-shrink-0 snap-start bg-white rounded-2xl border transition-all duration-300 flex flex-col overflow-hidden shadow-sm hover:shadow-md ${
+                  isSelected ? "border-[#c25e37] ring-2 ring-[#c25e37]/20" : "border-[#e8e2d5] hover:border-[#1c1917]/30"
+                }`}
+              >
+                <div className="relative h-60 sm:h-64 w-full overflow-hidden bg-[#f4efe6]">
+                  <img
+                    src={style.image}
+                    alt={style.name}
+                    className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                    loading="lazy"
+                  />
+                  <div className="absolute top-3.5 left-3.5">
+                    <span className="px-3 py-1 rounded-full bg-[#1c1917]/85 backdrop-blur-md text-white text-[11px] font-semibold tracking-wide shadow-sm">
+                      {style.tag}
+                    </span>
+                  </div>
+                  {isSelected && (
+                    <div className="absolute top-3.5 right-3.5">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#c25e37] text-white text-[11px] font-bold shadow-sm">
+                        <Check className="w-3 h-3" /> Selected
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                  <div className="space-y-2">
+                    <h3 className="font-bold text-base text-[#1c1917] tracking-tight">{style.name}</h3>
+                    <p className="text-xs text-[#57534e] leading-relaxed line-clamp-3">
+                      {style.description}
+                    </p>
+                  </div>
+
+                  <div className="space-y-3 pt-3 border-t border-[#f3ede2]">
+                    <div className="text-[11px] text-[#8c3817] font-medium bg-[#faf7f2] px-3 py-1.5 rounded-lg border border-[#e8e2d5]/60 flex items-center gap-1.5 truncate">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#c25e37] flex-shrink-0" />
+                      <span className="truncate" dangerouslySetInnerHTML={{ __html: style.paletteHint }} />
+                    </div>
+
+                    <button
+                      onClick={() => handleSelectCarouselStyle(style.name)}
+                      type="button"
+                      className={`w-full py-2.5 px-4 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition ${
+                        isSelected
+                          ? "bg-[#1c1917] text-white"
+                          : "bg-[#f4efe6] hover:bg-[#eadecc] text-[#1c1917] border border-[#e8e2d5]"
+                      }`}
+                    >
+                      <span>{isSelected ? "Active in Studio" : "Stage in this Style"}</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
 
@@ -1131,8 +1298,8 @@ export default function Home() {
             <a href="#showcase" className="hover:text-[#1c1917] transition">
               Showcase
             </a>
-            <a href="#aesthetics" className="hover:text-[#1c1917] transition">
-              Aesthetics
+            <a href="#styles-carousel" className="hover:text-[#1c1917] transition">
+              Design Styles
             </a>
             <a href="#standards" className="hover:text-[#1c1917] transition">
               Standards
