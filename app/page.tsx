@@ -137,6 +137,46 @@ const CAROUSEL_STYLES: CarouselStyle[] = [
     paletteHint: "Architectural Moulding &bull; Contemporary Neutrals",
     image: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=900&q=80",
   },
+  {
+    id: "Coastal",
+    name: "Coastal",
+    tag: "Breezy & Oceanic",
+    description: "Embraces an airy seaside ambiance with crisp whites, soft coastal blues, weathered driftwood, and relaxed natural linen textures.",
+    paletteHint: "Crisp Whites &bull; Ocean Blues &bull; Weathered Driftwood",
+    image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    id: "Modern Farmhouse",
+    name: "Modern Farmhouse",
+    tag: "Warm Country Charm",
+    description: "Blends cozy rustic character with clean contemporary lines, featuring reclaimed timber, matte black iron, warm shiplap, and plush textiles.",
+    paletteHint: "Reclaimed Wood &bull; Matte Black Iron &bull; Cream Shiplap",
+    image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    id: "Art Deco",
+    name: "Art Deco",
+    tag: "1920s Glamour",
+    description: "Draws from 1920s luxury with bold geometric symmetry, polished brass accents, rich jewel tones, and opulent velvet seating.",
+    paletteHint: "Polished Brass &bull; Emerald & Gold &bull; Geometric Velvet",
+    image: "https://images.unsplash.com/photo-1540518614846-7ede433c4ef4?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    id: "Mediterranean",
+    name: "Mediterranean",
+    tag: "Sun-Drenched Warmth",
+    description: "Inspired by Southern European coastal villas with warm terracotta tiles, soft lime-washed walls, organic arches, and handcrafted ceramics.",
+    paletteHint: "Terracotta Tiles &bull; Earthy Ochres &bull; Arched Plaster",
+    image: "https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    id: "Contemporary Luxury",
+    name: "Contemporary Luxury",
+    tag: "Curved Sculptural",
+    description: "Highlights current high-end interior trends with fluid curved silhouettes, textured bouclé upholstery, fluted oak, and diffused mood lighting.",
+    paletteHint: "Textured Bouclé &bull; Fluted Oak &bull; Calacatta Marble",
+    image: "https://images.unsplash.com/photo-1600565193348-f74bd3c7ccdf?auto=format&fit=crop&w=900&q=80",
+  },
 ];
 
 const STYLES: StyleOption[] = CAROUSEL_STYLES.map((s) => ({
@@ -638,9 +678,10 @@ export default function Home() {
       <section className="pt-16 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Left Text Column */}
-          <div className="lg:col-span-7 space-y-6">
-            <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-[#1c1917] leading-[1.1]">
-              Imagine your home, <span className="text-[#c25e37]">anew.</span>
+          <div className="lg:col-span-5 space-y-6">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#1c1917] leading-[1.1]">
+              Bring empty rooms to life with{" "}
+              <span className="text-[#c25e37]">thoughtful designs.</span>
             </h1>
 
             <p className="text-base sm:text-lg text-[#57534e] max-w-xl font-normal leading-relaxed">
@@ -681,18 +722,18 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Right Column: Hero Interactive Split Slider Showcase */}
-          <div id="showcase" className="lg:col-span-5 space-y-3">
-            <div className="flex items-center justify-between text-xs text-[#78716c] font-medium px-1">
-              <span>Interactive Transformation Showcase</span>
-              <div className="flex gap-1.5">
+          {/* Right Column: Hero Interactive Split Slider Showcase (Enlarged) */}
+          <div id="showcase" className="lg:col-span-7 space-y-3.5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-[#78716c] font-medium px-1 gap-2">
+              <span className="font-bold text-[#1c1917] text-sm">Interactive Transformation Showcase</span>
+              <div className="flex gap-2">
                 {DEMO_SAMPLES.map((sample, idx) => (
                   <button
                     key={sample.id}
                     onClick={() => setActiveDemoIndex(idx)}
-                    className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition ${
                       activeDemoIndex === idx
-                        ? "bg-[#1c1917] text-[#ffffff]"
+                        ? "bg-[#1c1917] text-[#ffffff] shadow-sm"
                         : "bg-[#ffffff] text-[#57534e] border border-[#e8e2d5] hover:text-[#1c1917]"
                     }`}
                   >
@@ -702,8 +743,8 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Split Comparison Frame */}
-            <div className="relative rounded-2xl border border-[#d4ccbd] bg-[#ffffff] aspect-[16/11] overflow-hidden shadow-sm select-none">
+            {/* Split Comparison Frame - Expanded Size & High Definition */}
+            <div className="relative rounded-3xl border-2 border-[#e8e2d5] bg-[#ffffff] aspect-[16/10] min-h-[380px] sm:min-h-[460px] lg:min-h-[500px] overflow-hidden shadow-lg select-none">
               {/* After Staged Base Image */}
               <img
                 src={DEMO_SAMPLES[activeDemoIndex].styled}

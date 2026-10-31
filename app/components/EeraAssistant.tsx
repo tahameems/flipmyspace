@@ -16,14 +16,85 @@ import {
   RotateCcw
 } from "lucide-react";
 
-// Eera Assistant Official Logo
+// Eera Assistant Logo - Crafted to match the website's warm Bauhaus/Relive aesthetic
 export function EeraLogo({ className = "w-7 h-7" }: { className?: string }) {
   return (
-    <img
-      src="/eera-logo.jpg"
-      alt="I'm Eera"
-      className={`rounded-full object-cover shadow-sm ${className}`}
-    />
+    <svg
+      viewBox="0 0 100 100"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={`rounded-full shadow-sm flex-shrink-0 ${className}`}
+      aria-label="Eera Chat Assistant Logo"
+    >
+      {/* Warm cream background matching #faf7f2 */}
+      <circle cx="50" cy="50" r="48" fill="#faf7f2" stroke="#c25e37" strokeWidth="2.5" />
+      {/* Concentric subtle inner border */}
+      <circle cx="50" cy="50" r="44" stroke="#e8e2d5" strokeWidth="1" strokeDasharray="3 2" />
+
+      {/* Elegant floor lamp in terracotta with warm amber glow */}
+      <path d="M28 72 L28 32 Q28 26 35 26 L38 26" stroke="#8c3817" strokeWidth="2" strokeLinecap="round" />
+      <path d="M23 72 L33 72" stroke="#8c3817" strokeWidth="2.5" strokeLinecap="round" />
+      <path d="M36 26 L43 32 L34 32 Z" fill="#c25e37" />
+      <circle cx="39" cy="34" r="6" fill="#f59e0b" opacity="0.4" />
+
+      {/* Starlight swirl in terracotta and sage green */}
+      <path
+        d="M38 38 Q52 32 68 40 Q78 46 84 42"
+        stroke="#c25e37"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+      <path
+        d="M44 44 Q60 38 76 47"
+        stroke="#7a8c6e"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+        strokeDasharray="2 2"
+      />
+      {/* Warm sparkles */}
+      <path d="M74 32 L75.5 28 L77 32 L81 33.5 L77 35 L75.5 39 L74 35 L70 33.5 Z" fill="#c25e37" />
+      <path d="M62 28 L63 25 L64 28 L67 29 L64 30 L63 33 L62 30 L59 29 Z" fill="#7a8c6e" />
+      <circle cx="86" cy="42" r="1.5" fill="#f59e0b" />
+      <circle cx="54" cy="34" r="1.2" fill="#c25e37" />
+
+      {/* Designer Armchair in rich charcoal #1c1917 and terracotta #c25e37 */}
+      {/* Seat backrest */}
+      <path
+        d="M40 48 Q40 44 44 44 L58 44 Q62 44 62 48 L62 60 Q62 62 60 62 L42 62 Q40 62 40 60 Z"
+        fill="#1c1917"
+      />
+      {/* Left armrest in terracotta */}
+      <path
+        d="M37 51 Q37 48 40 48 L41 48 L41 60 Q41 62 39 62 Q37 62 37 60 Z"
+        fill="#c25e37"
+      />
+      {/* Right armrest in terracotta */}
+      <path
+        d="M61 48 L62 48 Q65 48 65 51 L65 60 Q65 62 63 62 Q61 62 61 60 Z"
+        fill="#c25e37"
+      />
+      {/* Front seat cushion */}
+      <rect x="41" y="56" width="20" height="5" rx="1.5" fill="#2d2926" stroke="#c25e37" strokeWidth="0.8" />
+      {/* Wooden legs */}
+      <path d="M42 62 L39 70" stroke="#8c3817" strokeWidth="2" strokeLinecap="round" />
+      <path d="M60 62 L63 70" stroke="#8c3817" strokeWidth="2" strokeLinecap="round" />
+      <path d="M45 62 L44 68" stroke="#8c3817" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M57 62 L58 68" stroke="#8c3817" strokeWidth="1.8" strokeLinecap="round" />
+
+      {/* Typography: "I'm Eera" in warm charcoal & terracotta accent */}
+      <text
+        x="50"
+        y="86"
+        textAnchor="middle"
+        fontFamily="sans-serif"
+        fontSize="10.5"
+        fontWeight="800"
+        fill="#1c1917"
+        letterSpacing="0.4"
+      >
+        I’m Eera
+      </text>
+    </svg>
   );
 }
 
@@ -334,7 +405,7 @@ export default function EeraAssistant({
             onClick={() => setIsOpen(true)}
             type="button"
             aria-label="Open Eera AI Design Assistant"
-            className="w-14 h-14 rounded-full bg-[#1c1917] hover:bg-[#2e2926] border-2 border-[#c25e37] text-[#1c1917] flex items-center justify-center shadow-xl transition-all duration-300 hover:scale-105 group active:scale-95 overflow-hidden p-0.5"
+            className="w-14 h-14 rounded-full bg-[#faf7f2] hover:bg-[#ffffff] border-2 border-[#c25e37] text-[#1c1917] flex items-center justify-center shadow-xl transition-all duration-300 hover:scale-105 group active:scale-95 overflow-hidden p-0.5"
           >
             <div className="relative w-full h-full">
               <EeraLogo className="w-full h-full" />
@@ -369,7 +440,7 @@ export default function EeraAssistant({
           >
             <div className="flex items-center gap-3">
               <div className="relative flex-shrink-0">
-                <div className="w-10 h-10 rounded-2xl bg-[#1c1917] border border-[#e8e2d5] flex items-center justify-center p-0.5 shadow-sm overflow-hidden">
+                <div className="w-10 h-10 rounded-2xl bg-[#faf7f2] border border-[#e8e2d5] flex items-center justify-center p-0.5 shadow-sm overflow-hidden">
                   <EeraLogo className="w-full h-full" />
                 </div>
                 <span className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white ${
