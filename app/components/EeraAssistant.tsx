@@ -144,6 +144,8 @@ export default function EeraAssistant({
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isMinimized, setIsMinimized] = useState<boolean>(false);
   const [voiceEnabled, setVoiceEnabled] = useState<boolean>(false);
+  const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [inputText, setInputText] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [appliedHandoffId, setAppliedHandoffId] = useState<string | null>(null);
@@ -325,18 +327,89 @@ export default function EeraAssistant({
     isDraggingRef.current = false;
   };
 
-  // Text to speech helper
-  const speakText = (text: string) => {
-    if (!voiceEnabled || typeof window === "undefined" || !("speechSynthesis" in window)) return;
-    try {
+  // Text to speech helper powered by Fish Audio with browser speech fallback
+  const stopSpeaking = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current = null;
+    }
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
       window.speechSynthesis.cancel();
-      const cleanText = text.replace(/---BACKEND_HANDOFF---[\s\S]*?---END_HANDOFF---/g, "").trim();
-      const utterance = new SpeechSynthesisUtterance(cleanText);
-      utterance.rate = 1.0;
-      utterance.pitch = 1.05;
-      window.speechSynthesis.speak(utterance);
+    }
+    setIsSpeaking(false);
+  };
+
+  const speakText = async (text: string, force = false) => {
+    if (!voiceEnabled && !force) return;
+    stopSpeaking();
+
+    const cleanText = text
+      .replace(/---BACKEND_HANDOFF---[\s\S]*?---END_HANDOFF---/g, "")
+      .replace(/```[\s\S]*?```/g, "")
+      .replace(/\[.*?\]/g, "")
+      .replace(/\*\*.*?\*\*/g, (m) => m.replace(/\*/g, ""))
+      .replace(/[*_#`~]/g, "")
+      .trim();
+
+    if (!cleanText) return;
+
+    setIsSpeaking(true);
+
+    // 1. Primary: High-fidelity Fish Audio TTS stream
+    try {
+      const res = await fetch("/api/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: cleanText }),
+      });
+
+      if (res.ok) {
+        const blob = await res.blob();
+        const audioUrl = URL.createObjectURL(blob);
+        const audio = new Audio(audioUrl);
+        audioRef.current = audio;
+
+        audio.onended = () => {
+          setIsSpeaking(false);
+          URL.revokeObjectURL(audioUrl);
+        };
+        audio.onerror = () => {
+          setIsSpeaking(false);
+          URL.revokeObjectURL(audioUrl);
+        };
+
+        await audio.play();
+        return;
+      }
     } catch {
-      // Ignore audio synthesis errors
+      // Fall through to browser speech fallback
+    }
+
+    // 2. Fallback: Browser Web Speech API
+    try {
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        utterance.rate = 1.0;
+        utterance.pitch = 1.05;
+        utterance.onend = () => setIsSpeaking(false);
+        utterance.onerror = () => setIsSpeaking(false);
+        window.speechSynthesis.speak(utterance);
+      } else {
+        setIsSpeaking(false);
+      }
+    } catch {
+      setIsSpeaking(false);
+    }
+  };
+
+  const toggleVoice = () => {
+    if (voiceEnabled) {
+      stopSpeaking();
+      setVoiceEnabled(false);
+    } else {
+      setVoiceEnabled(true);
+      speakText("Voice enabled! I'm ready to discuss your room makeover.", true);
     }
   };
 
@@ -515,6 +588,13 @@ export default function EeraAssistant({
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#f4efe6] text-[#8c3817] font-semibold border border-[#e8e2d5]">
                     Relive Assistant
                   </span>
+                  {isSpeaking && (
+                    <div className="flex items-center gap-0.5 h-3 ml-0.5" title="Speaking with Fish Audio">
+                      <span className="w-0.5 h-3 bg-[#c25e37] rounded-full animate-bounce [animation-delay:-0.3s]" />
+                      <span className="w-0.5 h-2 bg-[#c25e37] rounded-full animate-bounce [animation-delay:-0.15s]" />
+                      <span className="w-0.5 h-3.5 bg-[#c25e37] rounded-full animate-bounce" />
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-center gap-1 text-[11px] text-[#78716c]">
                   <GripHorizontal className="w-3 h-3 text-[#a8a29e]" />
@@ -525,10 +605,10 @@ export default function EeraAssistant({
 
             <div className="flex items-center gap-1 text-[#78716c]">
               <button
-                onClick={() => setVoiceEnabled(!voiceEnabled)}
-                title={voiceEnabled ? "Mute Eera's voice" : "Enable Eera's voice reading"}
+                onClick={toggleVoice}
+                title={voiceEnabled ? "Mute Eera's voice" : "Enable Eera's voice (Fish Audio)"}
                 className={`p-1.5 rounded-lg hover:bg-[#eadecc] transition ${
-                  voiceEnabled ? "text-[#c25e37]" : "text-[#78716c]"
+                  voiceEnabled ? "text-[#c25e37] bg-[#f4efe6]" : "text-[#78716c]"
                 }`}
               >
                 {voiceEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
@@ -541,7 +621,10 @@ export default function EeraAssistant({
                 {isMinimized ? <Maximize2 className="w-4 h-4" /> : <Minimize2 className="w-4 h-4" />}
               </button>
               <button
-                onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  stopSpeaking();
+                  setIsOpen(false);
+                }}
                 title="Close"
                 className="p-1.5 rounded-lg hover:bg-[#eadecc] hover:text-[#1c1917] transition"
               >
@@ -664,9 +747,20 @@ export default function EeraAssistant({
                           )}
                         </div>
                       </div>
-                      <span className="text-[10px] text-[#a8a29e] mt-1 px-1">
-                        {msg.timestamp}
-                      </span>
+                      <div className="flex items-center gap-2 mt-1 px-1 text-[10px] text-[#a8a29e]">
+                        <span>{msg.timestamp}</span>
+                        {!isUser && (
+                          <button
+                            type="button"
+                            onClick={() => speakText(msg.content, true)}
+                            className="hover:text-[#c25e37] transition inline-flex items-center gap-1 font-medium cursor-pointer"
+                            title="Listen to Eera (Fish Audio)"
+                          >
+                            <Volume2 className="w-3 h-3 text-[#c25e37]" />
+                            <span>Listen</span>
+                          </button>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
