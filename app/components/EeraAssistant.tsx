@@ -23,7 +23,7 @@ export function EeraLogo({ className = "w-7 h-7" }: { className?: string }) {
       viewBox="0 0 100 100"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={`rounded-full shadow-sm flex-shrink-0 ${className}`}
+      className={`rounded-full shadow-sm flex-shrink-0 aspect-square object-contain ${className}`}
       aria-label="Eera Chat Assistant Logo"
     >
       {/* Warm cream background matching #faf7f2 */}
@@ -558,11 +558,11 @@ export default function EeraAssistant({
             onClick={() => setIsOpen(true)}
             type="button"
             aria-label="Open Eera AI Design Assistant"
-            className="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-[#faf7f2] hover:bg-[#ffffff] border-2 border-[#c25e37] text-[#1c1917] flex items-center justify-center shadow-xl transition-all duration-300 hover:scale-105 group active:scale-95 overflow-hidden p-0.5"
+            className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#faf7f2] hover:bg-[#ffffff] border-2 border-[#c25e37] text-[#1c1917] flex items-center justify-center shadow-xl transition-all duration-300 hover:scale-105 group active:scale-95 overflow-hidden p-0.5 flex-shrink-0"
           >
-            <div className="relative w-full h-full">
+            <div className="relative w-full h-full flex items-center justify-center">
               <EeraLogo className="w-full h-full" />
-              <span className={`absolute top-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-white ${
+              <span className={`absolute top-0 right-0 w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full border-2 border-white ${
                 hasGeneratedImage ? "bg-emerald-500 animate-pulse" : "bg-amber-400"
               }`} />
             </div>
@@ -605,10 +605,10 @@ export default function EeraAssistant({
           >
             <div className="flex items-center gap-2.5 sm:gap-3">
               <div className="relative flex-shrink-0">
-                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-[#faf7f2] border border-[#e8e2d5] flex items-center justify-center p-0.5 shadow-sm overflow-hidden">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-[#faf7f2] border border-[#e8e2d5] flex items-center justify-center p-0.5 shadow-sm overflow-hidden">
                   <EeraLogo className="w-full h-full" />
                 </div>
-                <span className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white ${
+                <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full border-2 border-white ${
                   hasGeneratedImage ? "bg-emerald-500" : "bg-amber-400"
                 }`} />
               </div>
