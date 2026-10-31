@@ -656,9 +656,9 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#faf7f2] text-[#1c1917] flex flex-col font-sans">
       {/* Main Navigation Bar */}
-      <nav className="bg-[#ffffff]/90 backdrop-blur-md border-b border-[#e8e2d5] sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3.5">
+      <nav className="bg-[#ffffff]/90 backdrop-blur-md border-b border-[#e8e2d5] sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-3.5 min-w-0">
             <ReliveLogo showTagline={true} />
           </div>
 
@@ -677,23 +677,23 @@ export default function Home() {
             </a>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             <UserAccountNav onScrollToStudio={scrollToStudio} />
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-16 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      <section className="pt-10 sm:pt-16 pb-14 sm:pb-20 px-3.5 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Left Text Column */}
-          <div className="lg:col-span-5 space-y-6">
+          <div className="lg:col-span-5 space-y-5 sm:space-y-6">
             {!user ? (
               <div>
                 <button
                   type="button"
                   onClick={() => openAuthModal("signup")}
-                  className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#f4efe6] border border-[#c25e37]/30 text-xs font-semibold text-[#8c3817] hover:bg-[#eadecc] transition shadow-xs group cursor-pointer"
+                  className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 rounded-full bg-[#f4efe6] border border-[#c25e37]/30 text-xs font-semibold text-[#8c3817] hover:bg-[#eadecc] transition shadow-xs group cursor-pointer"
                 >
                   <Sparkles className="w-3.5 h-3.5 text-[#c25e37]" />
                   <span>Get 5 designs free &bull; Instant signup</span>
@@ -709,19 +709,19 @@ export default function Home() {
               </div>
             )}
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#1c1917] leading-[1.1]">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#1c1917] leading-[1.15] sm:leading-[1.1]">
               Bring empty rooms to life with{" "}
               <span className="text-[#c25e37]">thoughtful designs.</span>
             </h1>
 
-            <p className="text-base sm:text-lg text-[#57534e] max-w-xl font-normal leading-relaxed">
+            <p className="text-sm sm:text-lg text-[#57534e] max-w-xl font-normal leading-relaxed">
               Visualise your space before you transform it. Upload a photograph of any unfurnished space, and Relive’s neural spatial engine calculates the true camera perspective, preserving your actual walls, flooring, and daylight while furnishing it with designer warmth.
             </p>
 
-            <div className="pt-2 flex flex-col sm:flex-row items-center gap-3.5">
+            <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
               <button
                 onClick={scrollToStudio}
-                className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-[#c25e37] hover:bg-[#a84e2b] text-[#ffffff] font-semibold text-sm shadow-sm flex items-center justify-center gap-2 transition"
+                className="w-full sm:w-auto px-6 sm:px-7 py-3.5 rounded-xl bg-[#c25e37] hover:bg-[#a84e2b] text-[#ffffff] font-semibold text-sm shadow-sm flex items-center justify-center gap-2 transition"
               >
                 <span>Upload Room Photograph</span>
                 <ArrowRight className="w-4 h-4" />
@@ -730,7 +730,7 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={() => openAuthModal("signup")}
-                  className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-[#ffffff] hover:bg-[#f4efe6] text-[#1c1917] border border-[#e8e2d5] font-semibold text-sm transition flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto px-5 sm:px-6 py-3.5 rounded-xl bg-[#ffffff] hover:bg-[#f4efe6] text-[#1c1917] border border-[#e8e2d5] font-semibold text-sm transition flex items-center justify-center gap-2"
                 >
                   <Sparkles className="w-4 h-4 text-[#c25e37]" />
                   <span>Get 5 Designs Free</span>
@@ -738,7 +738,7 @@ export default function Home() {
               ) : (
                 <a
                   href="#styles-carousel"
-                  className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-[#ffffff] hover:bg-[#f4efe6] text-[#1c1917] border border-[#e8e2d5] font-semibold text-sm transition flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto px-5 sm:px-6 py-3.5 rounded-xl bg-[#ffffff] hover:bg-[#f4efe6] text-[#1c1917] border border-[#e8e2d5] font-semibold text-sm transition flex items-center justify-center gap-2"
                 >
                   <Sliders className="w-4 h-4 text-[#78716c]" />
                   <span>Explore 14 Design Styles</span>
@@ -747,18 +747,18 @@ export default function Home() {
             </div>
 
             {/* Accessible Metric Strip */}
-            <div className="pt-6 grid grid-cols-3 gap-6 border-t border-[#e8e2d5] text-[#1c1917]">
+            <div className="pt-6 grid grid-cols-3 gap-2 sm:gap-6 border-t border-[#e8e2d5] text-[#1c1917]">
               <div>
-                <div className="text-2xl font-extrabold tracking-tight">100%</div>
-                <div className="text-xs text-[#78716c] font-medium mt-0.5">Structure Preserved</div>
+                <div className="text-xl sm:text-2xl font-extrabold tracking-tight">100%</div>
+                <div className="text-[10px] sm:text-xs text-[#78716c] font-medium mt-0.5">Structure Preserved</div>
               </div>
               <div>
-                <div className="text-2xl font-extrabold tracking-tight">&lt; 10s</div>
-                <div className="text-xs text-[#78716c] font-medium mt-0.5">Instant Rendering</div>
+                <div className="text-xl sm:text-2xl font-extrabold tracking-tight">&lt; 10s</div>
+                <div className="text-[10px] sm:text-xs text-[#78716c] font-medium mt-0.5">Instant Rendering</div>
               </div>
               <div>
-                <div className="text-2xl font-extrabold tracking-tight">8K UHD</div>
-                <div className="text-xs text-[#78716c] font-medium mt-0.5">High-Fidelity Output</div>
+                <div className="text-xl sm:text-2xl font-extrabold tracking-tight">8K UHD</div>
+                <div className="text-[10px] sm:text-xs text-[#78716c] font-medium mt-0.5">High-Fidelity Output</div>
               </div>
             </div>
           </div>
@@ -767,12 +767,12 @@ export default function Home() {
           <div id="showcase" className="lg:col-span-7 space-y-3.5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-[#78716c] font-medium px-1 gap-2">
               <span className="font-bold text-[#1c1917] text-sm">Interactive Transformation Showcase</span>
-              <div className="flex gap-2">
+              <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
                 {DEMO_SAMPLES.map((sample, idx) => (
                   <button
                     key={sample.id}
                     onClick={() => setActiveDemoIndex(idx)}
-                    className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition ${
+                    className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-semibold transition whitespace-nowrap ${
                       activeDemoIndex === idx
                         ? "bg-[#1c1917] text-[#ffffff] shadow-sm"
                         : "bg-[#ffffff] text-[#57534e] border border-[#e8e2d5] hover:text-[#1c1917]"
@@ -785,7 +785,7 @@ export default function Home() {
             </div>
 
             {/* Split Comparison Frame - Expanded Size & High Definition */}
-            <div className="relative rounded-3xl border-2 border-[#e8e2d5] bg-[#ffffff] aspect-[16/10] min-h-[380px] sm:min-h-[460px] lg:min-h-[500px] overflow-hidden shadow-lg select-none">
+            <div className="relative rounded-3xl border-2 border-[#e8e2d5] bg-[#ffffff] aspect-[16/10] min-h-[260px] sm:min-h-[460px] lg:min-h-[500px] overflow-hidden shadow-lg select-none">
               {/* After Staged Base Image */}
               <img
                 src={DEMO_SAMPLES[activeDemoIndex].styled}
@@ -812,31 +812,32 @@ export default function Home() {
                 className="absolute top-0 bottom-0 w-[2px] bg-[#ffffff] z-20 pointer-events-none shadow-[0_0_8px_rgba(0,0,0,0.4)]"
                 style={{ left: `${heroSliderPos}%` }}
               >
-                <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-9 h-9 rounded-full bg-[#ffffff] text-[#1c1917] border border-[#d4ccbd] flex items-center justify-center text-xs font-bold shadow-md">
+                <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#ffffff] text-[#1c1917] border border-[#d4ccbd] flex items-center justify-center text-xs font-bold shadow-md">
                   &harr;
                 </div>
               </div>
 
-              {/* Drag Input Range */}
+              {/* Drag Input Range with vertical pan pass-through for mobile scroll */}
               <input
                 type="range"
                 min="0"
                 max="100"
                 value={heroSliderPos}
                 onChange={(e) => setHeroSliderPos(Number(e.target.value))}
+                style={{ touchAction: "pan-y" }}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-30"
                 aria-label="Drag to inspect virtual staging transformation"
               />
 
               {/* Tags */}
-              <div className="absolute top-3.5 left-3.5 z-10 px-3 py-1 rounded-md bg-[#1c1917]/80 text-[#ffffff] text-xs font-semibold backdrop-blur-sm pointer-events-none">
+              <div className="absolute top-2.5 left-2.5 sm:top-3.5 sm:left-3.5 z-10 px-2.5 sm:px-3 py-1 rounded-md bg-[#1c1917]/80 text-[#ffffff] text-[10px] sm:text-xs font-semibold backdrop-blur-sm pointer-events-none">
                 Original Empty Room
               </div>
-              <div className="absolute top-3.5 right-3.5 z-10 px-3 py-1 rounded-md bg-[#ffffff]/90 text-[#1c1917] text-xs font-semibold border border-[#e8e2d5] backdrop-blur-sm pointer-events-none">
+              <div className="absolute top-2.5 right-2.5 sm:top-3.5 sm:right-3.5 z-10 px-2.5 sm:px-3 py-1 rounded-md bg-[#ffffff]/90 text-[#1c1917] text-[10px] sm:text-xs font-semibold border border-[#e8e2d5] backdrop-blur-sm pointer-events-none">
                 Staged ({DEMO_SAMPLES[activeDemoIndex].style})
               </div>
 
-              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 px-3.5 py-1 rounded-full bg-[#1c1917]/70 text-[#ffffff] text-[11px] font-medium pointer-events-none backdrop-blur-sm">
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 px-3.5 py-1 rounded-full bg-[#1c1917]/70 text-[#ffffff] text-[10px] sm:text-[11px] font-medium pointer-events-none backdrop-blur-sm whitespace-nowrap">
                 Slide across to compare
               </div>
             </div>
@@ -883,14 +884,14 @@ export default function Home() {
         {/* Carousel Track */}
         <div
           ref={carouselRef}
-          className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-6 pt-1 no-scrollbar scroll-smooth"
+          className="flex gap-4 sm:gap-5 overflow-x-auto snap-x snap-mandatory pb-6 pt-1 no-scrollbar scroll-smooth"
         >
           {CAROUSEL_STYLES.map((style) => {
             const isSelected = selectedStyle === style.name;
             return (
               <div
                 key={style.id}
-                className={`min-w-[300px] max-w-[320px] sm:min-w-[340px] sm:max-w-[360px] flex-shrink-0 snap-start bg-white rounded-2xl border transition-all duration-300 flex flex-col overflow-hidden shadow-sm hover:shadow-md ${
+                className={`w-[82vw] max-w-[310px] sm:w-auto sm:min-w-[340px] sm:max-w-[360px] flex-shrink-0 snap-start bg-white rounded-2xl border transition-all duration-300 flex flex-col overflow-hidden shadow-sm hover:shadow-md ${
                   isSelected ? "border-[#c25e37] ring-2 ring-[#c25e37]/20" : "border-[#e8e2d5] hover:border-[#1c1917]/30"
                 }`}
               >
@@ -968,7 +969,7 @@ export default function Home() {
 
         {/* Account Gate Banner for Signed-Out Visitors */}
         {!user && (
-          <div className="mb-8 p-6 rounded-2xl bg-white border-2 border-[#c25e37]/30 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-5 animate-fade-in">
+          <div className="mb-8 p-4 sm:p-6 rounded-2xl bg-white border-2 border-[#c25e37]/30 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-5 animate-fade-in">
             <div className="space-y-1">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#f4efe6] text-[#8c3817] text-xs font-bold border border-[#e8e2d5]">
                 <Sparkles className="w-3.5 h-3.5 text-[#c25e37]" />
@@ -981,18 +982,18 @@ export default function Home() {
                 Sign up in seconds to claim your 5 free room designs, customize typologies, and refine with your AI design assistant.
               </p>
             </div>
-            <div className="flex items-center gap-2.5 flex-shrink-0">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto flex-shrink-0">
               <button
                 type="button"
                 onClick={() => openAuthModal("signin")}
-                className="px-4 py-2.5 rounded-xl border border-[#e8e2d5] bg-white hover:bg-[#faf7f2] text-xs font-bold text-[#1c1917] transition"
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-[#e8e2d5] bg-white hover:bg-[#faf7f2] text-xs font-bold text-[#1c1917] transition text-center"
               >
                 Sign In
               </button>
               <button
                 type="button"
                 onClick={() => openAuthModal("signup")}
-                className="px-5 py-2.5 rounded-xl bg-[#c25e37] hover:bg-[#a84e2b] text-white text-xs font-bold shadow-sm transition flex items-center gap-2"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#c25e37] hover:bg-[#a84e2b] text-white text-xs font-bold shadow-sm transition flex items-center justify-center gap-2"
               >
                 <Sparkles className="w-3.5 h-3.5 text-amber-200" />
                 <span>Get 5 Designs Free</span>
@@ -1082,9 +1083,9 @@ export default function Home() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
           {/* Step 1: Upload Photo Container */}
-          <div className="lg:col-span-5 bg-[#ffffff] rounded-2xl border border-[#e8e2d5] p-6 space-y-5 shadow-sm">
+          <div className="lg:col-span-5 bg-[#ffffff] rounded-2xl border border-[#e8e2d5] p-4 sm:p-6 space-y-4 sm:space-y-5 shadow-sm">
             <div className="flex items-center justify-between pb-3 border-b border-[#f3ede2]">
               <div className="flex items-center gap-2.5">
                 <span className="w-6 h-6 rounded-lg bg-[#c25e37] text-[#ffffff] text-xs font-bold flex items-center justify-center">
@@ -1184,7 +1185,7 @@ export default function Home() {
           </div>
 
           {/* Steps 2 & 3: Typology & Aesthetic Selection */}
-          <div className="lg:col-span-7 bg-[#ffffff] rounded-2xl border border-[#e8e2d5] p-6 space-y-6 shadow-sm">
+          <div className="lg:col-span-7 bg-[#ffffff] rounded-2xl border border-[#e8e2d5] p-4 sm:p-6 space-y-5 sm:space-y-6 shadow-sm">
             {/* Step 2: Room Type */}
             <div>
               <div className="flex items-center justify-between pb-3 border-b border-[#f3ede2] mb-3">
@@ -1287,10 +1288,11 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={() => openAuthModal("signup")}
-                  className="w-full py-4 rounded-xl text-xs font-bold tracking-wide flex items-center justify-center gap-2 transition bg-[#c25e37] hover:bg-[#a84e2b] text-white cursor-pointer shadow-md group active:scale-[0.99]"
+                  className="w-full py-3.5 sm:py-4 px-4 rounded-xl text-xs font-bold tracking-wide flex items-center justify-center gap-2 transition bg-[#c25e37] hover:bg-[#a84e2b] text-white cursor-pointer shadow-md group active:scale-[0.99]"
                 >
                   <Sparkles className="w-4 h-4 text-amber-200" />
-                  <span>Create Free Account to Stage Space &bull; 5 Designs Free</span>
+                  <span className="hidden sm:inline">Create Free Account to Stage Space &bull; 5 Designs Free</span>
+                  <span className="sm:hidden">Create Free Account &bull; 5 Designs Free</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition" />
                 </button>
               ) : (
@@ -1343,15 +1345,15 @@ export default function Home() {
         {generatedImage && (
           <div
             ref={resultsRef}
-            className="mt-16 bg-[#ffffff] rounded-2xl border border-[#e8e2d5] p-6 sm:p-10 shadow-sm space-y-8"
+            className="mt-12 sm:mt-16 bg-[#ffffff] rounded-2xl border border-[#e8e2d5] p-4 sm:p-6 lg:p-10 shadow-sm space-y-6 sm:space-y-8"
           >
             {/* Results Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-[#e8e2d5] gap-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between pb-5 sm:pb-6 border-b border-[#e8e2d5] gap-4">
               <div>
                 <span className="text-xs font-semibold text-[#c25e37] uppercase tracking-wider">
                   Transformation Complete
                 </span>
-                <h3 className="text-2xl sm:text-3xl font-extrabold text-[#1c1917] mt-0.5">
+                <h3 className="text-xl sm:text-3xl font-extrabold text-[#1c1917] mt-0.5">
                   {selectedStyle} {selectedRoomType}
                 </h3>
               </div>
@@ -1361,7 +1363,7 @@ export default function Home() {
                 <div className="inline-flex rounded-xl bg-[#f4efe6] p-1 border border-[#e8e2d5] text-xs font-medium">
                   <button
                     onClick={() => setComparisonMode("slider")}
-                    className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition ${
+                    className={`px-2.5 sm:px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition ${
                       comparisonMode === "slider"
                         ? "bg-[#ffffff] text-[#1c1917] font-semibold shadow-sm"
                         : "text-[#57534e] hover:text-[#1c1917]"
@@ -1372,7 +1374,7 @@ export default function Home() {
                   </button>
                   <button
                     onClick={() => setComparisonMode("side-by-side")}
-                    className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition ${
+                    className={`px-2.5 sm:px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition ${
                       comparisonMode === "side-by-side"
                         ? "bg-[#ffffff] text-[#1c1917] font-semibold shadow-sm"
                         : "text-[#57534e] hover:text-[#1c1917]"
@@ -1385,14 +1387,14 @@ export default function Home() {
 
                 <button
                   onClick={handleDownload}
-                  className="px-4 py-2 bg-[#1c1917] hover:bg-[#2e2926] text-[#ffffff] text-xs font-semibold rounded-xl shadow-sm flex items-center gap-2 transition"
+                  className="px-3.5 sm:px-4 py-2 bg-[#1c1917] hover:bg-[#2e2926] text-[#ffffff] text-xs font-semibold rounded-xl shadow-sm flex items-center gap-1.5 sm:gap-2 transition"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  Download 8K
+                  <span>Download 8K</span>
                 </button>
                 <button
                   onClick={handleClear}
-                  className="px-4 py-2 bg-[#ffffff] border border-[#e8e2d5] hover:bg-[#f4efe6] text-[#1c1917] text-xs font-medium rounded-xl transition"
+                  className="px-3.5 sm:px-4 py-2 bg-[#ffffff] border border-[#e8e2d5] hover:bg-[#f4efe6] text-[#1c1917] text-xs font-medium rounded-xl transition"
                 >
                   Stage Another Room
                 </button>
@@ -1430,27 +1432,28 @@ export default function Home() {
                   className="absolute top-0 bottom-0 w-[2px] bg-[#ffffff] z-20 pointer-events-none shadow-[0_0_8px_rgba(0,0,0,0.4)]"
                   style={{ left: `${sliderPosition}%` }}
                 >
-                  <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-9 h-9 rounded-full bg-[#ffffff] text-[#1c1917] border border-[#d4ccbd] flex items-center justify-center font-bold text-xs shadow-md">
+                  <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#ffffff] text-[#1c1917] border border-[#d4ccbd] flex items-center justify-center font-bold text-xs shadow-md">
                     &harr;
                   </div>
                 </div>
 
-                {/* Interactive Slider Input */}
+                {/* Interactive Slider Input with vertical pan support */}
                 <input
                   type="range"
                   min="0"
                   max="100"
                   value={sliderPosition}
                   onChange={(e) => setSliderPosition(Number(e.target.value))}
+                  style={{ touchAction: "pan-y" }}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-30"
                   aria-label="Drag before and after transformation"
                 />
 
                 {/* Badges */}
-                <div className="absolute top-4 left-4 z-10 px-3 py-1 rounded-md bg-[#1c1917]/80 text-[#ffffff] text-xs font-medium backdrop-blur-sm pointer-events-none">
+                <div className="absolute top-2.5 left-2.5 sm:top-4 sm:left-4 z-10 px-2.5 sm:px-3 py-1 rounded-md bg-[#1c1917]/80 text-[#ffffff] text-[10px] sm:text-xs font-medium backdrop-blur-sm pointer-events-none">
                   Original Empty Space
                 </div>
-                <div className="absolute top-4 right-4 z-10 px-3 py-1 rounded-md bg-[#ffffff]/90 text-[#1c1917] border border-[#e8e2d5] text-xs font-semibold backdrop-blur-sm pointer-events-none">
+                <div className="absolute top-2.5 right-2.5 sm:top-4 sm:right-4 z-10 px-2.5 sm:px-3 py-1 rounded-md bg-[#ffffff]/90 text-[#1c1917] border border-[#e8e2d5] text-[10px] sm:text-xs font-semibold backdrop-blur-sm pointer-events-none">
                   Staged ({selectedStyle})
                 </div>
               </div>
@@ -1573,7 +1576,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-[#e8e2d5] bg-[#ffffff] py-12 px-4 sm:px-6 lg:px-8 mt-auto text-xs text-[#78716c]">
+      <footer className="border-t border-[#e8e2d5] bg-[#ffffff] py-12 pb-24 sm:pb-12 px-4 sm:px-6 lg:px-8 mt-auto text-xs text-[#78716c]">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2.5">
             <ReliveLogo showTagline={false} />

@@ -141,7 +141,7 @@ export default function AuthModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
       {/* Blurred Backdrop */}
       <div
         className="fixed inset-0 bg-[#1c1917]/60 backdrop-blur-sm transition-opacity"
@@ -149,19 +149,19 @@ export default function AuthModal() {
       />
 
       {/* Modal Dialog Card */}
-      <div className="relative w-full max-w-md bg-[#ffffff] rounded-3xl border-2 border-[#e8e2d5] shadow-2xl overflow-hidden z-10 animate-fade-in my-8">
+      <div className="relative w-full max-w-md bg-[#ffffff] rounded-3xl border-2 border-[#e8e2d5] shadow-2xl overflow-hidden z-10 animate-fade-in my-auto max-h-[94dvh] flex flex-col">
         {/* Top Header Banner with 5 Designs Free offer */}
-        <div className="bg-[#faf7f2] border-b border-[#e8e2d5] p-6 pb-5 relative">
+        <div className="bg-[#faf7f2] border-b border-[#e8e2d5] p-5 sm:p-6 pb-4 sm:pb-5 relative flex-shrink-0">
           <button
             onClick={closeAuthModal}
-            className="absolute top-5 right-5 p-1.5 rounded-full text-[#78716c] hover:text-[#1c1917] hover:bg-[#f4efe6] transition"
+            className="absolute top-4 right-4 sm:top-5 sm:right-5 p-1.5 rounded-full text-[#78716c] hover:text-[#1c1917] hover:bg-[#f4efe6] transition"
             aria-label="Close modal"
           >
             <X className="w-5 h-5" />
           </button>
 
           <div className="flex items-center gap-2 mb-3">
-            <ReliveLogo showTagline={false} />
+            <ReliveLogo showTagline={false} size="sm" />
           </div>
 
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#f4efe6] text-[#8c3817] text-xs font-bold border border-[#e8e2d5] mb-2">
@@ -169,7 +169,7 @@ export default function AuthModal() {
             <span>5 Free Room Designs Included</span>
           </div>
 
-          <h2 className="text-xl font-extrabold text-[#1c1917]">
+          <h2 className="text-lg sm:text-xl font-extrabold text-[#1c1917]">
             {requiresConfirmation
               ? "Verify Your Email"
               : mode === "signup"
@@ -187,7 +187,7 @@ export default function AuthModal() {
 
         {/* Tab Switcher (hidden when showing email confirmation screen) */}
         {!requiresConfirmation && (
-          <div className="grid grid-cols-2 border-b border-[#e8e2d5] bg-[#fcfaf7] text-xs font-bold">
+          <div className="grid grid-cols-2 border-b border-[#e8e2d5] bg-[#fcfaf7] text-xs font-bold flex-shrink-0">
             <button
               type="button"
               onClick={() => {
@@ -222,7 +222,7 @@ export default function AuthModal() {
         )}
 
         {/* Form Body */}
-        <div className="p-6 space-y-4">
+        <div className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
           {/* Alerts */}
           {errorMsg && (
             <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs flex items-start gap-2.5">
@@ -450,7 +450,7 @@ export default function AuthModal() {
 
         {/* Modal Footer */}
         {!requiresConfirmation && (
-          <div className="bg-[#faf7f2] border-t border-[#e8e2d5] px-6 py-3 text-center text-xs text-[#78716c]">
+          <div className="bg-[#faf7f2] border-t border-[#e8e2d5] px-5 sm:px-6 py-3 text-center text-xs text-[#78716c] flex-shrink-0">
             {mode === "signup" ? (
               <p>
                 Already have an account?{" "}

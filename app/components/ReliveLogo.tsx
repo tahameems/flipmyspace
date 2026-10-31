@@ -13,22 +13,22 @@ export function ReliveLogo({
 }) {
   const sizeConfig = {
     sm: {
-      svg: "w-9 h-9",
-      text: "text-2xl",
-      tagline: "text-[11px]",
-      gap: "gap-2.5",
+      svg: "w-8 h-8 sm:w-9 sm:h-9",
+      text: "text-xl sm:text-2xl",
+      tagline: "text-[10px] sm:text-[11px]",
+      gap: "gap-2 sm:gap-2.5",
     },
     md: {
-      svg: "w-12 h-12",
-      text: "text-[28px] sm:text-3xl",
-      tagline: "text-xs",
-      gap: "gap-3.5",
+      svg: "w-9 h-9 sm:w-11 sm:h-11",
+      text: "text-2xl sm:text-3xl",
+      tagline: "text-[11px] sm:text-xs",
+      gap: "gap-2 sm:gap-3.5",
     },
     lg: {
-      svg: "w-14 h-14",
-      text: "text-4xl",
-      tagline: "text-sm",
-      gap: "gap-4",
+      svg: "w-12 h-12 sm:w-14 sm:h-14",
+      text: "text-3xl sm:text-4xl",
+      tagline: "text-xs sm:text-sm",
+      gap: "gap-3 sm:gap-4",
     },
   };
 
@@ -67,7 +67,7 @@ export function ReliveLogo({
           relive
         </span>
         {showTagline && (
-          <span className={`${currentSize.tagline} text-[#78716c] font-medium tracking-tight mt-1`}>
+          <span className={`${currentSize.tagline} text-[#78716c] font-medium tracking-tight mt-0.5 hidden sm:block`}>
             Imagine your home, anew.
           </span>
         )}

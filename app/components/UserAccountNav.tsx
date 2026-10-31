@@ -23,11 +23,11 @@ export default function UserAccountNav({ onScrollToStudio }: { onScrollToStudio?
   // If user is not logged in, display the "Get 5 designs free" CTA and "Sign In"
   if (!user) {
     return (
-      <div className="flex items-center gap-2.5">
+      <div className="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
         <button
           type="button"
           onClick={() => openAuthModal("signin")}
-          className="text-xs font-semibold text-[#57534e] hover:text-[#1c1917] px-3 py-2 rounded-xl hover:bg-[#f4efe6] transition"
+          className="text-xs font-semibold text-[#57534e] hover:text-[#1c1917] px-2 sm:px-3 py-2 rounded-xl hover:bg-[#f4efe6] transition"
         >
           Sign In
         </button>
@@ -35,10 +35,11 @@ export default function UserAccountNav({ onScrollToStudio }: { onScrollToStudio?
         <button
           type="button"
           onClick={() => openAuthModal("signup")}
-          className="px-4 py-2 text-xs font-bold text-[#ffffff] bg-[#c25e37] hover:bg-[#a84e2b] rounded-xl shadow-xs transition flex items-center gap-1.5 active:scale-95"
+          className="px-3 sm:px-4 py-2 text-xs font-bold text-[#ffffff] bg-[#c25e37] hover:bg-[#a84e2b] rounded-xl shadow-xs transition flex items-center gap-1.5 active:scale-95 whitespace-nowrap"
         >
           <Sparkles className="w-3.5 h-3.5 text-amber-200" />
-          <span>Get 5 designs free</span>
+          <span className="hidden sm:inline">Get 5 designs free</span>
+          <span className="sm:hidden">5 Free Designs</span>
         </button>
       </div>
     );
