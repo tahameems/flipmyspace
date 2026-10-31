@@ -96,7 +96,7 @@ const CAROUSEL_STYLES: CarouselStyle[] = [
     tag: "1950s Retro Iconic",
     description: "Inspired by the 1950s and 1960s with retro organic shapes, iconic show-wood furniture, vibrant accents, and warm woods.",
     paletteHint: "Oiled Walnut &bull; Retro Organic Shapes &bull; Show-wood",
-    image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=900&q=80",
+    image: "https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?auto=format&fit=crop&w=900&q=80",
   },
   {
     id: "Minimalism",
@@ -112,7 +112,7 @@ const CAROUSEL_STYLES: CarouselStyle[] = [
     tag: "Raw Architectural",
     description: "Uses raw, unfinished elements such as exposed brick walls, metal pipes, concrete floors, and weathered leather.",
     paletteHint: "Exposed Brick &bull; Metal Pipes &bull; Weathered Leather",
-    image: "https://images.unsplash.com/photo-1534349762230-e0cadf78f5da?auto=format&fit=crop&w=900&q=80",
+    image: "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=900&q=80",
   },
   {
     id: "Bohemian (Boho)",
@@ -152,7 +152,7 @@ const CAROUSEL_STYLES: CarouselStyle[] = [
     tag: "Warm Country Charm",
     description: "Blends cozy rustic character with clean contemporary lines, featuring reclaimed timber, matte black iron, warm shiplap, and plush textiles.",
     paletteHint: "Reclaimed Wood &bull; Matte Black Iron &bull; Cream Shiplap",
-    image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=80",
+    image: "https://images.pexels.com/photos/5900823/pexels-photo-5900823.jpeg?auto=compress&cs=tinysrgb&w=900",
   },
   {
     id: "Art Deco",
@@ -176,7 +176,7 @@ const CAROUSEL_STYLES: CarouselStyle[] = [
     tag: "Curved Sculptural",
     description: "Highlights current high-end interior trends with fluid curved silhouettes, textured bouclé upholstery, fluted oak, and diffused mood lighting.",
     paletteHint: "Textured Bouclé &bull; Fluted Oak &bull; Calacatta Marble",
-    image: "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=900&q=80",
+    image: "https://images.pexels.com/photos/7031407/pexels-photo-7031407.jpeg?auto=compress&cs=tinysrgb&w=900",
   },
 ];
 
