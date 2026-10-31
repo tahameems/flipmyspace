@@ -30,6 +30,8 @@ import {
 } from "lucide-react";
 import EeraAssistant from "./components/EeraAssistant";
 import ReliveLogo from "./components/ReliveLogo";
+import { useAuth } from "@/context/AuthContext";
+import UserAccountNav from "./components/UserAccountNav";
 
 interface StyleOption {
   id: string;
@@ -207,6 +209,7 @@ const DEMO_SAMPLES = [
 ];
 
 export default function Home() {
+  const { user, profile, openAuthModal, deductCredit } = useAuth();
   const [selectedStyle, setSelectedStyle] = useState<string>("Scandinavian");
   const [selectedRoomType, setSelectedRoomType] = useState<string>("Living Room");
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -518,6 +521,7 @@ export default function Home() {
       }
 
       setGeneratedImage(data.imageUrl);
+      deductCredit();
       if (data.analysis) {
         setRoomAnalysis(data.analysis);
       }
@@ -595,6 +599,7 @@ export default function Home() {
       }
 
       setGeneratedImage(data.imageUrl);
+      deductCredit();
       if (data.analysis) {
         setRoomAnalysis(data.analysis);
       }
@@ -651,16 +656,17 @@ export default function Home() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => loadSample(0)}
-              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-[#57534e] bg-[#f4efe6] hover:bg-[#eadecc] rounded-xl border border-[#e8e2d5] transition"
+              className="hidden lg:inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-[#57534e] bg-[#f4efe6] hover:bg-[#eadecc] rounded-xl border border-[#e8e2d5] transition"
             >
               <Eye className="w-3.5 h-3.5 text-[#78716c]" />
               View Sample
             </button>
+            <UserAccountNav onScrollToStudio={scrollToStudio} />
             <button
               onClick={scrollToStudio}
-              className="px-5 py-2.5 text-xs font-bold text-[#ffffff] bg-[#1c1917] hover:bg-[#2e2926] rounded-xl shadow-sm transition flex items-center gap-2"
+              className="hidden sm:inline-flex px-5 py-2.5 text-xs font-bold text-[#ffffff] bg-[#1c1917] hover:bg-[#2e2926] rounded-xl shadow-sm transition items-center gap-2"
             >
-              <span>Stage Your Space</span>
+              <span>Stage Space</span>
               <ArrowRight className="w-3.5 h-3.5 text-[#e8e2d5]" />
             </button>
           </div>
@@ -672,6 +678,18 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Left Text Column */}
           <div className="lg:col-span-5 space-y-6">
+            <div>
+              <button
+                type="button"
+                onClick={() => openAuthModal("signup")}
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#f4efe6] border border-[#c25e37]/30 text-xs font-semibold text-[#8c3817] hover:bg-[#eadecc] transition shadow-xs group cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#c25e37]" />
+                <span>Get 5 designs free &bull; Instant signup</span>
+                <ArrowRight className="w-3 h-3 text-[#c25e37] group-hover:translate-x-0.5 transition" />
+              </button>
+            </div>
+
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#1c1917] leading-[1.1]">
               Bring empty rooms to life with{" "}
               <span className="text-[#c25e37]">thoughtful designs.</span>
@@ -690,11 +708,12 @@ export default function Home() {
                 <ArrowRight className="w-4 h-4" />
               </button>
               <button
-                onClick={() => loadSample(0)}
+                type="button"
+                onClick={() => openAuthModal("signup")}
                 className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-[#ffffff] hover:bg-[#f4efe6] text-[#1c1917] border border-[#e8e2d5] font-semibold text-sm transition flex items-center justify-center gap-2"
               >
-                <Eye className="w-4 h-4 text-[#78716c]" />
-                <span>See Interactive Demo</span>
+                <Sparkles className="w-4 h-4 text-[#c25e37]" />
+                <span>Get 5 Designs Free</span>
               </button>
             </div>
 
