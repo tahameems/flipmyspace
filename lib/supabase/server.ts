@@ -8,29 +8,6 @@ export async function createClient() {
   const supabaseUrl = getSupabaseUrl();
   const supabaseAnonKey = getSupabaseAnonKey();
 
-  if (!supabaseUrl || !supabaseAnonKey) {
-    return createServerClient(
-      "https://placeholder-project.supabase.co",
-      "placeholder-anon-key",
-      {
-        cookies: {
-          getAll() {
-            return cookieStore.getAll();
-          },
-          setAll(cookiesToSet) {
-            try {
-              cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, options)
-              );
-            } catch {
-              // Ignored if called from a Server Component
-            }
-          },
-        },
-      }
-    );
-  }
-
   return createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
       getAll() {
@@ -48,4 +25,3 @@ export async function createClient() {
     },
   });
 }
-

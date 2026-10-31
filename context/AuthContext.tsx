@@ -1,8 +1,8 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
-import { User, Session, SupabaseClient } from "@supabase/supabase-js";
-import { createClient, initClient, isSupabaseConfigured } from "@/lib/supabase/client";
+import { User, Session } from "@supabase/supabase-js";
+import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 
 export interface UserProfile {
   id: string;
@@ -38,135 +38,91 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
   const [authModalMode, setAuthModalMode] = useState<"signup" | "signin">("signup");
-  const [isConfigured, setIsConfigured] = useState<boolean>(false);
+  const [isConfigured, setIsConfigured] = useState<boolean>(true);
 
-  const fetchProfile = useCallback(async (currentUser: User, clientInstance?: SupabaseClient) => {
-    const client = clientInstance || createClient();
+  const fetchProfile = useCallback(async (currentUser: User) => {
     try {
-      // 1. Try fetching existing profile row from public.profiles
-      const { data, error } = await client
-        .from("profiles")
-        .select("id, email, full_name, avatar_url, credits_remaining")
-        .eq("id", currentUser.id)
-        .maybeSingle();
-
-      if (data && !error) {
-        setProfile({
-          id: data.id,
-          email: data.email || currentUser.email || null,
-          full_name: data.full_name || currentUser.user_metadata?.full_name || null,
-          avatar_url: data.avatar_url || currentUser.user_metadata?.avatar_url || null,
-          credits_remaining: typeof data.credits_remaining === "number" ? data.credits_remaining : 5,
-        });
-        return;
+      const res = await fetch("/api/user/profile");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.profile) {
+          setProfile({
+            id: data.profile.id,
+            email: data.profile.email || currentUser.email || null,
+            full_name: data.profile.full_name || currentUser.user_metadata?.full_name || null,
+            avatar_url: data.profile.avatar_url || currentUser.user_metadata?.avatar_url || null,
+            credits_remaining: typeof data.profile.credits_remaining === "number" ? data.profile.credits_remaining : 5,
+          });
+          return;
+        }
       }
-
-      // 2. If row not found (or table not yet created), attempt upsert
-      const initialProfile: UserProfile = {
-        id: currentUser.id,
-        email: currentUser.email || null,
-        full_name: currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || null,
-        avatar_url: currentUser.user_metadata?.avatar_url || null,
-        credits_remaining: 5, // 5 Free designs granted
-      };
-
-      try {
-        await client
-          .from("profiles")
-          .upsert(initialProfile, { onConflict: "id" });
-      } catch {
-        // Ignored
-      }
-
-      setProfile(initialProfile);
     } catch {
-      // Graceful fallback: local state with 5 free credits
-      setProfile({
-        id: currentUser.id,
-        email: currentUser.email || null,
-        full_name: currentUser.user_metadata?.full_name || null,
-        avatar_url: currentUser.user_metadata?.avatar_url || null,
-        credits_remaining: 5,
-      });
+      // Fallback
     }
+
+    // Default profile state
+    setProfile({
+      id: currentUser.id,
+      email: currentUser.email || null,
+      full_name: currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || null,
+      avatar_url: currentUser.user_metadata?.avatar_url || null,
+      credits_remaining: 5,
+    });
   }, []);
 
   useEffect(() => {
-    let unsubscribe = () => {};
-
-    const setupAuth = async () => {
-      let client = createClient();
-      let configured = isSupabaseConfigured();
-
-      // If client doesn't see NEXT_PUBLIC_* variables, check if server has SUPABASE_URL / SUPABASE_ANON_KEY
-      if (!configured) {
-        try {
-          const res = await fetch("/api/auth/config");
-          const data = await res.json();
-          if (data.configured && data.url && data.anonKey) {
-            client = initClient(data.url, data.anonKey);
-            configured = true;
-          }
-        } catch {
-          // Keep configured = false if config endpoint is unreachable
-        }
-      }
-
-      setIsConfigured(configured);
-
-      if (!configured) {
-        // Fallback for demo environments when Supabase is not yet connected
-        if (typeof window !== "undefined") {
-          const localUser = localStorage.getItem("relive_demo_user");
-          if (localUser) {
-            try {
-              const parsed = JSON.parse(localUser);
-              setUser(parsed.user);
-              setProfile(parsed.profile);
-            } catch {}
-          }
-        }
-        setIsLoading(false);
-        return;
-      }
-
-      // Supabase is active: check current session
+    const initAuth = async () => {
       try {
+        // 1. Check if user is already authenticated via server session
+        const profileRes = await fetch("/api/user/profile");
+        if (profileRes.ok) {
+          const profileData = await profileRes.json();
+          if (profileData.profile) {
+            const activeUser: any = {
+              id: profileData.profile.id,
+              email: profileData.profile.email,
+              user_metadata: { full_name: profileData.profile.full_name },
+            };
+            setUser(activeUser);
+            setProfile(profileData.profile);
+            setIsLoading(false);
+            return;
+          }
+        }
+      } catch {
+        // Fallback check
+      }
+
+      // Check client-side session if available
+      try {
+        const client = createClient();
         const { data } = await client.auth.getSession();
         if (data?.session?.user) {
           setUser(data.session.user);
-          await fetchProfile(data.session.user, client);
+          await fetchProfile(data.session.user);
+          setIsLoading(false);
+          return;
         }
       } catch {
-        // Session check fallback
-      } finally {
-        setIsLoading(false);
+        // Fallback
       }
 
-      // Listen to Supabase auth state changes
-      const {
-        data: { subscription },
-      } = client.auth.onAuthStateChange(async (_event: string, session: Session | null) => {
-        if (session?.user) {
-          setUser(session.user);
-          await fetchProfile(session.user, client);
-        } else {
-          setUser(null);
-          setProfile(null);
+      // Check local storage demo user
+      if (typeof window !== "undefined") {
+        const local = localStorage.getItem("relive_demo_user");
+        if (local) {
+          try {
+            const parsed = JSON.parse(local);
+            setUser(parsed.user);
+            setProfile(parsed.profile);
+          } catch {}
         }
-        setIsLoading(false);
-      });
+      }
 
-      unsubscribe = () => {
-        subscription.unsubscribe();
-      };
+      setIsLoading(false);
     };
 
-    setupAuth();
-
-    return () => {
-      unsubscribe();
-    };
+    initAuth();
   }, [fetchProfile]);
 
   const openAuthModal = (mode: "signup" | "signin" = "signup") => {
@@ -179,179 +135,122 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signInWithEmail = async (email: string, password: string) => {
-    const client = createClient();
+    try {
+      const res = await fetch("/api/auth/signin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
 
-    if (!isConfigured) {
-      // Simulated instant sign-in for preview/local environments
-      const fakeUser: any = {
-        id: `demo-${Date.now()}`,
-        email,
-        user_metadata: { full_name: email.split("@")[0] },
-      };
-      const fakeProfile: UserProfile = {
-        id: fakeUser.id,
-        email,
-        full_name: email.split("@")[0],
-        avatar_url: null,
-        credits_remaining: 5,
-      };
-      setUser(fakeUser);
-      setProfile(fakeProfile);
-      if (typeof window !== "undefined") {
-        localStorage.setItem("relive_demo_user", JSON.stringify({ user: fakeUser, profile: fakeProfile }));
+      const data = await res.json();
+
+      if (!res.ok || data.error) {
+        return { error: data.error || "Failed to sign in. Please check your credentials." };
       }
-      closeAuthModal();
-      return {};
+
+      if (data.user) {
+        setUser(data.user);
+        await fetchProfile(data.user);
+        closeAuthModal();
+        return {};
+      }
+
+      return { error: "Could not establish session." };
+    } catch (err: any) {
+      return { error: err.message || "Network error. Please try again." };
     }
-
-    const { data, error } = await client.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      return { error: error.message };
-    }
-
-    if (data.session?.user) {
-      setUser(data.session.user);
-      await fetchProfile(data.session.user, client);
-    }
-
-    closeAuthModal();
-    return {};
   };
 
   const signUpWithEmail = async (email: string, password: string, fullName?: string) => {
-    const client = createClient();
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email.trim(),
+          password,
+          fullName: fullName?.trim() || "",
+        }),
+      });
 
-    if (!isConfigured) {
-      const fakeUser: any = {
-        id: `demo-${Date.now()}`,
-        email,
-        user_metadata: { full_name: fullName || email.split("@")[0] },
-      };
-      const fakeProfile: UserProfile = {
-        id: fakeUser.id,
-        email,
-        full_name: fullName || email.split("@")[0],
-        avatar_url: null,
-        credits_remaining: 5,
-      };
-      setUser(fakeUser);
-      setProfile(fakeProfile);
-      if (typeof window !== "undefined") {
-        localStorage.setItem("relive_demo_user", JSON.stringify({ user: fakeUser, profile: fakeProfile }));
+      const data = await res.json();
+
+      if (!res.ok || data.error) {
+        return { error: data.error || "Failed to create account. Please try again." };
       }
-      closeAuthModal();
-      return { message: "Account created! 5 free room designs are active." };
-    }
 
-    const redirectUrl = typeof window !== "undefined" ? `${window.location.origin}/auth/callback` : undefined;
+      if (data.session?.user) {
+        setUser(data.session.user);
+        await fetchProfile(data.session.user);
+        closeAuthModal();
+        return { message: "Welcome to Relive! 5 free room designs are now active." };
+      }
 
-    const { data, error } = await client.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName || "",
-        },
-        emailRedirectTo: redirectUrl,
-      },
-    });
+      if (data.requiresEmailConfirmation) {
+        return {
+          requiresEmailConfirmation: true,
+          message: data.message || `We sent an activation link to ${email}.`,
+        };
+      }
 
-    if (error) {
-      return { error: error.message };
-    }
-
-    // If Supabase returned an active session (instant signup / email confirmation disabled)
-    if (data.session?.user) {
-      setUser(data.session.user);
-      await fetchProfile(data.session.user, client);
-      closeAuthModal();
-      return { message: "Welcome to Relive! 5 free room designs are now active." };
-    }
-
-    // If user created but awaiting email confirmation link
-    if (data.user) {
       return {
-        requiresEmailConfirmation: true,
-        message: `We've sent an activation link to ${email}. Please check your inbox (and spam) to confirm your account and claim your 5 free designs.`,
+        message: data.message || "Account created! You can now sign in.",
       };
+    } catch (err: any) {
+      return { error: err.message || "Network error. Please try again." };
     }
-
-    return {
-      requiresEmailConfirmation: true,
-      message: "Please check your inbox to confirm your email, then sign in to access your 5 free designs.",
-    };
   };
 
   const resendVerificationEmail = async (email: string) => {
-    const client = createClient();
-    if (!isConfigured) return {};
+    try {
+      const res = await fetch("/api/auth/resend", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
 
-    const redirectUrl = typeof window !== "undefined" ? `${window.location.origin}/auth/callback` : undefined;
-    const { error } = await client.auth.resend({
-      type: "signup",
-      email,
-      options: {
-        emailRedirectTo: redirectUrl,
-      },
-    });
+      const data = await res.json();
 
-    if (error) {
-      return { error: error.message };
+      if (!res.ok || data.error) {
+        return { error: data.error || "Could not resend email." };
+      }
+
+      return { message: data.message || "Verification email resent! Please check your inbox." };
+    } catch (err: any) {
+      return { error: err.message || "Failed to resend." };
     }
-
-    return { message: "Verification email resent! Please check your inbox." };
   };
 
   const signInWithOAuth = async (provider: "google") => {
-    const client = createClient();
+    try {
+      const client = createClient();
+      const redirectUrl = typeof window !== "undefined" ? `${window.location.origin}/auth/callback` : undefined;
+      const { error } = await client.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: redirectUrl,
+        },
+      });
 
-    if (!isConfigured) {
-      const fakeUser: any = {
-        id: `google-${Date.now()}`,
-        email: "designer@relive.home",
-        user_metadata: { full_name: "Relive Designer" },
-      };
-      const fakeProfile: UserProfile = {
-        id: fakeUser.id,
-        email: "designer@relive.home",
-        full_name: "Relive Designer",
-        avatar_url: null,
-        credits_remaining: 5,
-      };
-      setUser(fakeUser);
-      setProfile(fakeProfile);
-      if (typeof window !== "undefined") {
-        localStorage.setItem("relive_demo_user", JSON.stringify({ user: fakeUser, profile: fakeProfile }));
+      if (error) {
+        return { error: error.message };
       }
-      closeAuthModal();
       return {};
+    } catch (err: any) {
+      return { error: err.message || "OAuth sign-in failed." };
     }
-
-    const redirectUrl = typeof window !== "undefined" ? `${window.location.origin}/auth/callback` : undefined;
-    const { error } = await client.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: redirectUrl,
-      },
-    });
-
-    if (error) {
-      return { error: error.message };
-    }
-    return {};
   };
 
   const signOut = async () => {
-    const client = createClient();
-    if (isConfigured) {
-      try {
-        await client.auth.signOut();
-      } catch {}
-    }
+    try {
+      await fetch("/api/auth/signout", { method: "POST" });
+    } catch {}
+
+    try {
+      const client = createClient();
+      await client.auth.signOut();
+    } catch {}
+
     setUser(null);
     setProfile(null);
     if (typeof window !== "undefined") {
@@ -366,13 +265,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const deductCredit = async (): Promise<boolean> => {
-    // Uncapped generation: users can generate as many designs as they wish
+    // Uncapped generation
     if (!profile) return true;
 
     const newCredits = Math.max(0, profile.credits_remaining - 1);
     setProfile((prev) => (prev ? { ...prev, credits_remaining: newCredits } : null));
 
-    if (isConfigured && user) {
+    if (user) {
       try {
         const client = createClient();
         await client
@@ -380,15 +279,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .update({ credits_remaining: newCredits, updated_at: new Date().toISOString() })
           .eq("id", user.id);
       } catch {}
-    } else if (typeof window !== "undefined") {
-      const local = localStorage.getItem("relive_demo_user");
-      if (local) {
-        try {
-          const parsed = JSON.parse(local);
-          parsed.profile.credits_remaining = newCredits;
-          localStorage.setItem("relive_demo_user", JSON.stringify(parsed));
-        } catch {}
-      }
     }
 
     return true;

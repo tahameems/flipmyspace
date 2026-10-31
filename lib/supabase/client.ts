@@ -1,13 +1,15 @@
 import { createBrowserClient } from "@supabase/ssr";
 
-// Safe retrieval of public Supabase environment variables
-// Supports standard NEXT_PUBLIC_*, NEXT_SUPABASE_*, and Vercel-injected SUPABASE_URL / SUPABASE_ANON_KEY
+const DEFAULT_SUPABASE_URL = "https://bjpudckrybzudbxmxvvd.supabase.co";
+const DEFAULT_SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJqcHVkY2tyeWJ6dWRieG14dnZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM0MTI2ODgsImV4cCI6MjEwODk4ODY4OH0.8G_QIpmXc67gnMIjWGu4djrA27NBk-mCPK60h0f3UIk";
+
 export const getSupabaseUrl = () => {
   return (
     process.env.NEXT_PUBLIC_SUPABASE_URL ||
     process.env.NEXT_SUPABASE_URL ||
     process.env.SUPABASE_URL ||
-    ""
+    DEFAULT_SUPABASE_URL
   );
 };
 
@@ -17,7 +19,7 @@ export const getSupabaseAnonKey = () => {
     process.env.NEXT_SUPABASE_ANON_KEY ||
     process.env.SUPABASE_ANON_KEY ||
     process.env.SUPABASE_KEY ||
-    ""
+    DEFAULT_SUPABASE_ANON_KEY
   );
 };
 
@@ -33,11 +35,9 @@ export const isSupabaseConfigured = () => {
 };
 
 let clientInstance: ReturnType<typeof createBrowserClient> | null = null;
-let isPlaceholder = false;
 
 export function initClient(url: string, anonKey: string) {
   clientInstance = createBrowserClient(url, anonKey);
-  isPlaceholder = false;
   return clientInstance;
 }
 
@@ -46,27 +46,13 @@ export function createClient(customUrl?: string, customKey?: string) {
     return initClient(customUrl, customKey);
   }
 
-  // If already initialized with real credentials, return it
-  if (clientInstance && !isPlaceholder) {
+  if (clientInstance) {
     return clientInstance;
   }
 
   const supabaseUrl = getSupabaseUrl();
   const supabaseAnonKey = getSupabaseAnonKey();
 
-  if (!supabaseUrl || !supabaseAnonKey || !isSupabaseConfigured()) {
-    // Return a dummy client without locking clientInstance permanently
-    if (!clientInstance) {
-      clientInstance = createBrowserClient(
-        "https://placeholder-project.supabase.co",
-        "placeholder-anon-key"
-      );
-      isPlaceholder = true;
-    }
-    return clientInstance;
-  }
-
   clientInstance = createBrowserClient(supabaseUrl, supabaseAnonKey);
-  isPlaceholder = false;
   return clientInstance;
 }
