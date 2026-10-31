@@ -1,8 +1,8 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
-import { User, Session } from "@supabase/supabase-js";
-import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
+import { User } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/client";
 
 export interface UserProfile {
   id: string;
@@ -17,6 +17,7 @@ interface AuthContextType {
   profile: UserProfile | null;
   isLoading: boolean;
   isConfigured: boolean;
+  googleAuthEnabled: boolean;
   isAuthModalOpen: boolean;
   authModalMode: "signup" | "signin";
   openAuthModal: (mode?: "signup" | "signin") => void;
@@ -39,6 +40,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
   const [authModalMode, setAuthModalMode] = useState<"signup" | "signin">("signup");
   const [isConfigured, setIsConfigured] = useState<boolean>(true);
+  const [googleAuthEnabled, setGoogleAuthEnabled] = useState<boolean>(false);
 
   const fetchProfile = useCallback(async (currentUser: User) => {
     try {
@@ -72,8 +74,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const initAuth = async () => {
+      // 1. Fetch server config to check if Google OAuth is enabled
       try {
-        // 1. Check if user is already authenticated via server session
+        const configRes = await fetch("/api/auth/config");
+        if (configRes.ok) {
+          const configData = await configRes.json();
+          setGoogleAuthEnabled(Boolean(configData.googleEnabled));
+        }
+      } catch {
+        // Fallback
+      }
+
+      try {
+        // 2. Check if user is already authenticated via server session
         const profileRes = await fetch("/api/user/profile");
         if (profileRes.ok) {
           const profileData = await profileRes.json();
@@ -222,6 +235,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signInWithOAuth = async (provider: "google") => {
+    if (!googleAuthEnabled) {
+      return {
+        error: "Google sign-in is not yet enabled in this Supabase project. Please create your account or sign in with email and password below.",
+      };
+    }
+
     try {
       const client = createClient();
       const redirectUrl = typeof window !== "undefined" ? `${window.location.origin}/auth/callback` : undefined;
@@ -291,6 +310,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         profile,
         isLoading,
         isConfigured,
+        googleAuthEnabled,
         isAuthModalOpen,
         authModalMode,
         openAuthModal,
