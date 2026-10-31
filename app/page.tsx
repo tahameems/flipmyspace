@@ -112,7 +112,7 @@ const CAROUSEL_STYLES: CarouselStyle[] = [
     tag: "Raw Architectural",
     description: "Uses raw, unfinished elements such as exposed brick walls, metal pipes, concrete floors, and weathered leather.",
     paletteHint: "Exposed Brick &bull; Metal Pipes &bull; Weathered Leather",
-    image: "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=900&q=80",
+    image: "https://images.pexels.com/photos/7746030/pexels-photo-7746030.jpeg?auto=compress&cs=tinysrgb&w=900",
   },
   {
     id: "Bohemian (Boho)",
@@ -160,7 +160,7 @@ const CAROUSEL_STYLES: CarouselStyle[] = [
     tag: "1920s Glamour",
     description: "Draws from 1920s luxury with bold geometric symmetry, polished brass accents, rich jewel tones, and opulent velvet seating.",
     paletteHint: "Polished Brass &bull; Emerald & Gold &bull; Geometric Velvet",
-    image: "https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&w=900&q=80",
+    image: "https://images.pexels.com/photos/8092433/pexels-photo-8092433.jpeg?auto=compress&cs=tinysrgb&w=900",
   },
   {
     id: "Mediterranean",
@@ -176,7 +176,7 @@ const CAROUSEL_STYLES: CarouselStyle[] = [
     tag: "Curved Sculptural",
     description: "Highlights current high-end interior trends with fluid curved silhouettes, textured bouclé upholstery, fluted oak, and diffused mood lighting.",
     paletteHint: "Textured Bouclé &bull; Fluted Oak &bull; Calacatta Marble",
-    image: "https://images.pexels.com/photos/7031407/pexels-photo-7031407.jpeg?auto=compress&cs=tinysrgb&w=900",
+    image: "https://images.pexels.com/photos/7031406/pexels-photo-7031406.jpeg?auto=compress&cs=tinysrgb&w=900",
   },
 ];
 
