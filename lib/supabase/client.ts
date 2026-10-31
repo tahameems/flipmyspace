@@ -1,10 +1,11 @@
 import { createBrowserClient } from "@supabase/ssr";
 
 // Safe retrieval of public Supabase environment variables
-// Supports standard NEXT_PUBLIC_* as well as Vercel-injected SUPABASE_URL / SUPABASE_ANON_KEY
+// Supports standard NEXT_PUBLIC_*, NEXT_SUPABASE_*, and Vercel-injected SUPABASE_URL / SUPABASE_ANON_KEY
 export const getSupabaseUrl = () => {
   return (
     process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    process.env.NEXT_SUPABASE_URL ||
     process.env.SUPABASE_URL ||
     ""
   );
@@ -13,7 +14,9 @@ export const getSupabaseUrl = () => {
 export const getSupabaseAnonKey = () => {
   return (
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    process.env.NEXT_SUPABASE_ANON_KEY ||
     process.env.SUPABASE_ANON_KEY ||
+    process.env.SUPABASE_KEY ||
     ""
   );
 };
