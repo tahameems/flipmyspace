@@ -21,27 +21,49 @@ export const getSupabaseAnonKey = () => {
 export const isSupabaseConfigured = () => {
   const url = getSupabaseUrl();
   const key = getSupabaseAnonKey();
-  return Boolean(url && key && !url.includes("your-project"));
+  return Boolean(
+    url &&
+    key &&
+    !url.includes("your-project") &&
+    !url.includes("placeholder-project")
+  );
 };
 
 let clientInstance: ReturnType<typeof createBrowserClient> | null = null;
+let isPlaceholder = false;
 
-export function createClient() {
-  if (clientInstance) return clientInstance;
+export function initClient(url: string, anonKey: string) {
+  clientInstance = createBrowserClient(url, anonKey);
+  isPlaceholder = false;
+  return clientInstance;
+}
+
+export function createClient(customUrl?: string, customKey?: string) {
+  if (customUrl && customKey) {
+    return initClient(customUrl, customKey);
+  }
+
+  // If already initialized with real credentials, return it
+  if (clientInstance && !isPlaceholder) {
+    return clientInstance;
+  }
 
   const supabaseUrl = getSupabaseUrl();
   const supabaseAnonKey = getSupabaseAnonKey();
 
-  if (!supabaseUrl || !supabaseAnonKey) {
-    // Return a dummy/safe client during build or if credentials aren't yet loaded in development
-    clientInstance = createBrowserClient(
-      "https://placeholder-project.supabase.co",
-      "placeholder-anon-key"
-    );
+  if (!supabaseUrl || !supabaseAnonKey || !isSupabaseConfigured()) {
+    // Return a dummy client without locking clientInstance permanently
+    if (!clientInstance) {
+      clientInstance = createBrowserClient(
+        "https://placeholder-project.supabase.co",
+        "placeholder-anon-key"
+      );
+      isPlaceholder = true;
+    }
     return clientInstance;
   }
 
   clientInstance = createBrowserClient(supabaseUrl, supabaseAnonKey);
+  isPlaceholder = false;
   return clientInstance;
 }
-

@@ -1,8 +1,8 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
-import { User, Session } from "@supabase/supabase-js";
-import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
+import { User, Session, SupabaseClient } from "@supabase/supabase-js";
+import { createClient, initClient, isSupabaseConfigured } from "@/lib/supabase/client";
 
 export interface UserProfile {
   id: string;
@@ -22,7 +22,8 @@ interface AuthContextType {
   openAuthModal: (mode?: "signup" | "signin") => void;
   closeAuthModal: () => void;
   signInWithEmail: (email: string, password: string) => Promise<{ error?: string }>;
-  signUpWithEmail: (email: string, password: string, fullName?: string) => Promise<{ error?: string; message?: string }>;
+  signUpWithEmail: (email: string, password: string, fullName?: string) => Promise<{ error?: string; message?: string; requiresEmailConfirmation?: boolean }>;
+  resendVerificationEmail: (email: string) => Promise<{ error?: string; message?: string }>;
   signInWithOAuth: (provider: "google") => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -39,12 +40,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [authModalMode, setAuthModalMode] = useState<"signup" | "signin">("signup");
   const [isConfigured, setIsConfigured] = useState<boolean>(false);
 
-  const supabase = createClient();
-
-  const fetchProfile = useCallback(async (currentUser: User) => {
+  const fetchProfile = useCallback(async (currentUser: User, clientInstance?: SupabaseClient) => {
+    const client = clientInstance || createClient();
     try {
       // 1. Try fetching existing profile row from public.profiles
-      const { data, error } = await supabase
+      const { data, error } = await client
         .from("profiles")
         .select("id, email, full_name, avatar_url, credits_remaining")
         .eq("id", currentUser.id)
@@ -61,7 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      // 2. If row not found (or table not yet migrated), attempt upsert
+      // 2. If row not found (or table not yet created), attempt upsert
       const initialProfile: UserProfile = {
         id: currentUser.id,
         email: currentUser.email || null,
@@ -70,7 +70,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         credits_remaining: 5, // 5 Free designs granted
       };
 
-      await supabase.from("profiles").upsert(initialProfile).catch(() => {});
+      await client
+        .from("profiles")
+        .upsert(initialProfile, { onConflict: "id" })
+        .catch(() => {});
+
       setProfile(initialProfile);
     } catch {
       // Graceful fallback: local state with 5 free credits
@@ -82,56 +86,85 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         credits_remaining: 5,
       });
     }
-  }, [supabase]);
+  }, []);
 
   useEffect(() => {
-    const configured = isSupabaseConfigured();
-    setIsConfigured(configured);
+    let unsubscribe = () => {};
 
-    if (!configured) {
-      // Check if temporary simulated demo session exists in localStorage
-      if (typeof window !== "undefined") {
-        const localUser = localStorage.getItem("relive_demo_user");
-        if (localUser) {
-          try {
-            const parsed = JSON.parse(localUser);
-            setUser(parsed.user);
-            setProfile(parsed.profile);
-          } catch {}
+    const setupAuth = async () => {
+      let client = createClient();
+      let configured = isSupabaseConfigured();
+
+      // If client doesn't see NEXT_PUBLIC_* variables, check if server has SUPABASE_URL / SUPABASE_ANON_KEY
+      if (!configured) {
+        try {
+          const res = await fetch("/api/auth/config");
+          const data = await res.json();
+          if (data.configured && data.url && data.anonKey) {
+            client = initClient(data.url, data.anonKey);
+            configured = true;
+          }
+        } catch {
+          // Keep configured = false if config endpoint is unreachable
         }
       }
-      setIsLoading(false);
-      return;
-    }
 
-    // Get current auth session from Supabase
-    supabase.auth.getSession().then(({ data }: { data: { session: Session | null } }) => {
-      const session = data?.session;
-      if (session?.user) {
-        setUser(session.user);
-        fetchProfile(session.user);
-      }
-      setIsLoading(false);
-    });
+      setIsConfigured(configured);
 
-    // Listen to Supabase auth state changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event: string, session: Session | null) => {
-      if (session?.user) {
-        setUser(session.user);
-        await fetchProfile(session.user);
-      } else {
-        setUser(null);
-        setProfile(null);
+      if (!configured) {
+        // Fallback for demo environments when Supabase is not yet connected
+        if (typeof window !== "undefined") {
+          const localUser = localStorage.getItem("relive_demo_user");
+          if (localUser) {
+            try {
+              const parsed = JSON.parse(localUser);
+              setUser(parsed.user);
+              setProfile(parsed.profile);
+            } catch {}
+          }
+        }
+        setIsLoading(false);
+        return;
       }
-      setIsLoading(false);
-    });
+
+      // Supabase is active: check current session
+      try {
+        const { data } = await client.auth.getSession();
+        if (data?.session?.user) {
+          setUser(data.session.user);
+          await fetchProfile(data.session.user, client);
+        }
+      } catch {
+        // Session check fallback
+      } finally {
+        setIsLoading(false);
+      }
+
+      // Listen to Supabase auth state changes
+      const {
+        data: { subscription },
+      } = client.auth.onAuthStateChange(async (_event: string, session: Session | null) => {
+        if (session?.user) {
+          setUser(session.user);
+          await fetchProfile(session.user, client);
+        } else {
+          setUser(null);
+          setProfile(null);
+        }
+        setIsLoading(false);
+      });
+
+      unsubscribe = () => {
+        subscription.unsubscribe();
+      };
+    };
+
+    setupAuth();
 
     return () => {
-      subscription.unsubscribe();
+      unsubscribe();
     };
-  }, [fetchProfile, supabase]);
+  }, [fetchProfile]);
 
   const openAuthModal = (mode: "signup" | "signin" = "signup") => {
     setAuthModalMode(mode);
@@ -143,6 +176,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signInWithEmail = async (email: string, password: string) => {
+    const client = createClient();
+
     if (!isConfigured) {
       // Simulated instant sign-in for preview/local environments
       const fakeUser: any = {
@@ -166,7 +201,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return {};
     }
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await client.auth.signInWithPassword({
       email,
       password,
     });
@@ -175,11 +210,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { error: error.message };
     }
 
+    if (data.session?.user) {
+      setUser(data.session.user);
+      await fetchProfile(data.session.user, client);
+    }
+
     closeAuthModal();
     return {};
   };
 
   const signUpWithEmail = async (email: string, password: string, fullName?: string) => {
+    const client = createClient();
+
     if (!isConfigured) {
       const fakeUser: any = {
         id: `demo-${Date.now()}`,
@@ -199,16 +241,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem("relive_demo_user", JSON.stringify({ user: fakeUser, profile: fakeProfile }));
       }
       closeAuthModal();
-      return { message: "Account created! 5 free room designs have been credited to your profile." };
+      return { message: "Account created! 5 free room designs are active." };
     }
 
-    const { data, error } = await supabase.auth.signUp({
+    const redirectUrl = typeof window !== "undefined" ? `${window.location.origin}/auth/callback` : undefined;
+
+    const { data, error } = await client.auth.signUp({
       email,
       password,
       options: {
         data: {
           full_name: fullName || "",
         },
+        emailRedirectTo: redirectUrl,
       },
     });
 
@@ -216,18 +261,51 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { error: error.message };
     }
 
+    // If Supabase returned an active session (instant signup / email confirmation disabled)
     if (data.session?.user) {
-      await fetchProfile(data.session.user);
+      setUser(data.session.user);
+      await fetchProfile(data.session.user, client);
       closeAuthModal();
       return { message: "Welcome to Relive! 5 free room designs are now active." };
     }
 
+    // If user created but awaiting email confirmation link
+    if (data.user) {
+      return {
+        requiresEmailConfirmation: true,
+        message: `We've sent an activation link to ${email}. Please check your inbox (and spam) to confirm your account and claim your 5 free designs.`,
+      };
+    }
+
     return {
+      requiresEmailConfirmation: true,
       message: "Please check your inbox to confirm your email, then sign in to access your 5 free designs.",
     };
   };
 
+  const resendVerificationEmail = async (email: string) => {
+    const client = createClient();
+    if (!isConfigured) return {};
+
+    const redirectUrl = typeof window !== "undefined" ? `${window.location.origin}/auth/callback` : undefined;
+    const { error } = await client.auth.resend({
+      type: "signup",
+      email,
+      options: {
+        emailRedirectTo: redirectUrl,
+      },
+    });
+
+    if (error) {
+      return { error: error.message };
+    }
+
+    return { message: "Verification email resent! Please check your inbox." };
+  };
+
   const signInWithOAuth = async (provider: "google") => {
+    const client = createClient();
+
     if (!isConfigured) {
       const fakeUser: any = {
         id: `google-${Date.now()}`,
@@ -251,7 +329,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     const redirectUrl = typeof window !== "undefined" ? `${window.location.origin}/auth/callback` : undefined;
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { error } = await client.auth.signInWithOAuth({
       provider,
       options: {
         redirectTo: redirectUrl,
@@ -265,8 +343,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
+    const client = createClient();
     if (isConfigured) {
-      await supabase.auth.signOut();
+      try {
+        await client.auth.signOut();
+      } catch {}
     }
     setUser(null);
     setProfile(null);
@@ -290,7 +371,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (isConfigured && user) {
       try {
-        await supabase
+        const client = createClient();
+        await client
           .from("profiles")
           .update({ credits_remaining: newCredits, updated_at: new Date().toISOString() })
           .eq("id", user.id);
@@ -322,6 +404,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         closeAuthModal,
         signInWithEmail,
         signUpWithEmail,
+        resendVerificationEmail,
         signInWithOAuth,
         signOut,
         refreshProfile,
