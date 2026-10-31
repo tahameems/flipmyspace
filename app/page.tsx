@@ -26,8 +26,7 @@ import {
   HeartHandshake,
   Compass,
   ChevronLeft,
-  ChevronRight,
-  Key
+  ChevronRight
 } from "lucide-react";
 import EeraAssistant from "./components/EeraAssistant";
 import ReliveLogo from "./components/ReliveLogo";
@@ -103,7 +102,7 @@ const CAROUSEL_STYLES: CarouselStyle[] = [
     tag: "Open Negative Space",
     description: "Focuses on open negative space, uncluttered surfaces, multi-functional furniture, and a quiet, monochrome color scheme.",
     paletteHint: "Monochrome &bull; Uncluttered Surfaces &bull; Multi-functional",
-    image: "https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=900&q=80",
+    image: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=900&q=80",
   },
   {
     id: "Industrial",
@@ -111,7 +110,7 @@ const CAROUSEL_STYLES: CarouselStyle[] = [
     tag: "Raw Architectural",
     description: "Uses raw, unfinished elements such as exposed brick walls, metal pipes, concrete floors, and weathered leather.",
     paletteHint: "Exposed Brick &bull; Metal Pipes &bull; Weathered Leather",
-    image: "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=900&q=80",
+    image: "https://images.unsplash.com/photo-1534349762230-e0cadf78f5da?auto=format&fit=crop&w=900&q=80",
   },
   {
     id: "Bohemian (Boho)",
@@ -143,7 +142,7 @@ const CAROUSEL_STYLES: CarouselStyle[] = [
     tag: "Breezy & Oceanic",
     description: "Embraces an airy seaside ambiance with crisp whites, soft coastal blues, weathered driftwood, and relaxed natural linen textures.",
     paletteHint: "Crisp Whites &bull; Ocean Blues &bull; Weathered Driftwood",
-    image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=900&q=80",
+    image: "https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=900&q=80",
   },
   {
     id: "Modern Farmhouse",
@@ -159,7 +158,7 @@ const CAROUSEL_STYLES: CarouselStyle[] = [
     tag: "1920s Glamour",
     description: "Draws from 1920s luxury with bold geometric symmetry, polished brass accents, rich jewel tones, and opulent velvet seating.",
     paletteHint: "Polished Brass &bull; Emerald & Gold &bull; Geometric Velvet",
-    image: "https://images.unsplash.com/photo-1540518614846-7ede433c4ef4?auto=format&fit=crop&w=900&q=80",
+    image: "https://images.unsplash.com/photo-1567016432779-094069958ea5?auto=format&fit=crop&w=900&q=80",
   },
   {
     id: "Mediterranean",
@@ -246,7 +245,6 @@ export default function Home() {
 
   // Client-configurable API key for live Vercel deployments
   const [customApiKey, setCustomApiKey] = useState<string>("");
-  const [showApiKeyModal, setShowApiKeyModal] = useState<boolean>(false);
   const [apiKeyInput, setApiKeyInput] = useState<string>("");
   const [isApiKeyMissing, setIsApiKeyMissing] = useState<boolean>(false);
   const [hasServerKey, setHasServerKey] = useState<boolean | null>(null);
@@ -268,8 +266,6 @@ export default function Home() {
           setHasServerKey(Boolean(data.hasServerKey));
           if (data.keyPrefix) {
             setServerKeyPrefix(data.keyPrefix);
-            // Hide modal because server key is already active in Vercel!
-            setShowApiKeyModal(false);
             setIsApiKeyMissing(false);
           }
         })
@@ -290,7 +286,6 @@ export default function Home() {
         localStorage.removeItem("flipmyspace_gemini_key");
       }
     }
-    setShowApiKeyModal(false);
     setIsApiKeyMissing(false);
     setErrorMessage(null);
   };
@@ -503,8 +498,7 @@ export default function Home() {
       if (!response.ok) {
         if (data?.isApiKeyMissing && !hasServerKey) {
           setIsApiKeyMissing(true);
-          setShowApiKeyModal(true);
-          setErrorMessage("API Key required: Configure your key in Settings below or in your Vercel Dashboard.");
+          setErrorMessage("API Key required: Please verify that GEMINI_API_KEY is configured in your Vercel Environment Variables.");
           return;
         }
 
@@ -910,7 +904,7 @@ export default function Home() {
 
       {/* Main Staging Studio */}
       <section ref={studioRef} className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full border-t border-[#e8e2d5]">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
+        <div className="mb-10">
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#8c3817] uppercase tracking-wider mb-1">
               <Sparkles className="w-3.5 h-3.5 text-[#c25e37]" />
@@ -923,129 +917,7 @@ export default function Home() {
               Select your room photo, specify the room type and desired aesthetic, then generate your staged design.
             </p>
           </div>
-
-          <div>
-            <button
-              onClick={() => setShowApiKeyModal(!showApiKeyModal)}
-              type="button"
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[#e8e2d5] bg-white hover:bg-[#f4efe6] text-xs font-semibold transition shadow-sm"
-            >
-              <Key className="w-3.5 h-3.5 text-[#c25e37]" />
-              {hasServerKey ? (
-                <span className="flex items-center gap-1.5 text-emerald-800">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <span>Server Key Active ({serverKeyPrefix})</span>
-                </span>
-              ) : customApiKey ? (
-                <span className="flex items-center gap-1.5 text-emerald-800">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <span>Browser Key Active</span>
-                </span>
-              ) : (
-                <span className="flex items-center gap-1.5 text-[#8c3817]">
-                  <span className="w-2 h-2 rounded-full bg-[#c25e37] animate-pulse" />
-                  <span>Configure AI Key</span>
-                </span>
-              )}
-            </button>
-          </div>
         </div>
-
-        {/* AI Studio API Key Configuration Card */}
-        {showApiKeyModal && (
-          <div className="mb-8 p-6 rounded-2xl bg-white border-2 border-[#c25e37]/40 shadow-md space-y-4">
-            <div className="flex items-start justify-between gap-4 border-b border-[#e8e2d5] pb-3">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#f4efe6] text-[#c25e37] flex items-center justify-center font-bold text-xs border border-[#e8e2d5]">
-                  <Key className="w-4 h-4 text-[#c25e37]" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-[#1c1917]">
-                    AI Studio Key Configuration
-                  </h3>
-                  <p className="text-xs text-[#57534e]">
-                    Configure your AI Studio staging key to run room design directly on Vercel or localhost.
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setShowApiKeyModal(false)}
-                className="text-xs text-[#78716c] hover:text-[#1c1917] font-semibold"
-              >
-                &times;
-              </button>
-            </div>
-
-            {/* Live Server Detection Status */}
-            <div className={`p-3.5 rounded-xl border text-xs leading-relaxed ${
-              hasServerKey
-                ? "bg-emerald-50/80 border-emerald-200 text-emerald-900"
-                : "bg-amber-50/80 border-amber-200 text-amber-900"
-            }`}>
-              {hasServerKey ? (
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 flex-shrink-0" />
-                  <span>
-                    <strong>Vercel Server Key Connected:</strong> <code>{serverKeyPrefix}</code> is actively loaded in this deployment.
-                  </span>
-                </div>
-              ) : (
-                <div>
-                  <div className="flex items-center gap-2 font-bold mb-1">
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500 flex-shrink-0" />
-                    <span>Server Environment Variable Not Detected in Current Deployment</span>
-                  </div>
-                  <p className="text-[11px] text-amber-800">
-                    If you added <code>GEMINI_API_KEY</code> in Vercel Settings, Vercel requires a <strong>Redeploy</strong> to inject it into live containers. Either paste your key below for instant access, or click Redeploy in your Vercel Deployments dashboard.
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-3">
-              <div className="text-xs text-[#57534e] leading-relaxed">
-                <p>
-                  <strong>Direct Browser Staging:</strong> Paste your Google AI Studio API Key below. It is stored securely in your browser and sent with your staging requests.
-                </p>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-2.5">
-                <input
-                  type="password"
-                  placeholder="Paste your API key (AQ.Ab... or AIza...)"
-                  value={apiKeyInput}
-                  onChange={(e) => setApiKeyInput(e.target.value)}
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-[#e8e2d5] text-xs font-mono bg-[#faf7f2] focus:outline-none focus:border-[#c25e37] text-[#1c1917]"
-                />
-                <button
-                  type="button"
-                  onClick={() => saveApiKey(apiKeyInput)}
-                  className="px-5 py-2.5 rounded-xl bg-[#c25e37] hover:bg-[#a84e2b] text-white text-xs font-semibold shadow-sm transition whitespace-nowrap"
-                >
-                  Save Key
-                </button>
-                {customApiKey && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setApiKeyInput("");
-                      saveApiKey("");
-                    }}
-                    className="px-4 py-2.5 rounded-xl border border-[#e8e2d5] bg-white hover:bg-[#f4efe6] text-xs font-semibold text-[#78716c] transition"
-                  >
-                    Clear
-                  </button>
-                )}
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-[#faf7f2] border border-[#e8e2d5] text-[11px] text-[#57534e] leading-relaxed">
-                <p>
-                  <strong>Permanent Vercel Server Setup:</strong> In your <a href="https://vercel.com/dashboard" target="_blank" rel="noreferrer" className="text-[#c25e37] underline font-semibold">Vercel Project Dashboard</a>, go to <em>Settings &rarr; Environment Variables</em>, add Key: <code>GEMINI_API_KEY</code>, check <em>Production</em>, <em>Preview</em>, and <em>Development</em>, and click Redeploy.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Global Error Notice */}
         {errorMessage && (
@@ -1098,7 +970,7 @@ export default function Home() {
 
             <div className="text-xs text-[#57534e] space-y-1.5 leading-relaxed">
               <p>
-                <strong>Diagnostic:</strong> Your AI Studio key successfully analyzed the floor lines, wall perspective, and daylight orientation from your uploaded photo.
+                <strong>Diagnostic:</strong> Relive successfully analyzed the floor lines, wall perspective, and daylight orientation from your uploaded photo.
               </p>
               <p>
                 However, image synthesis requires an active billing account linked to your AI project (Google Cloud assigns a 0-quota limit on unbilled free projects for image generation).
