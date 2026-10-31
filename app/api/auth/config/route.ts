@@ -17,19 +17,10 @@ export async function GET() {
     !url.includes("your-project")
   );
 
-  const availableMatchingKeys = Object.keys(process.env).filter(
-    (k) =>
-      k.includes("SUPA") ||
-      k.includes("POSTGRES") ||
-      k.includes("DATABASE") ||
-      k.includes("DB_")
-  );
-
   return NextResponse.json({
     configured: isConfigured,
     url: isConfigured ? url : null,
     anonKey: isConfigured ? anonKey : null,
-    detectedEnvKeys: availableMatchingKeys,
   });
 }
 
