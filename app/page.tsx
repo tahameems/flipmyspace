@@ -160,7 +160,7 @@ const CAROUSEL_STYLES: CarouselStyle[] = [
     tag: "1920s Glamour",
     description: "Draws from 1920s luxury with bold geometric symmetry, polished brass accents, rich jewel tones, and opulent velvet seating.",
     paletteHint: "Polished Brass &bull; Emerald & Gold &bull; Geometric Velvet",
-    image: "https://images.unsplash.com/photo-1567016432779-094069958ea5?auto=format&fit=crop&w=900&q=80",
+    image: "https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&w=900&q=80",
   },
   {
     id: "Mediterranean",
@@ -176,7 +176,7 @@ const CAROUSEL_STYLES: CarouselStyle[] = [
     tag: "Curved Sculptural",
     description: "Highlights current high-end interior trends with fluid curved silhouettes, textured bouclé upholstery, fluted oak, and diffused mood lighting.",
     paletteHint: "Textured Bouclé &bull; Fluted Oak &bull; Calacatta Marble",
-    image: "https://images.unsplash.com/photo-1600565193348-f74bd3c7ccdf?auto=format&fit=crop&w=900&q=80",
+    image: "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=900&q=80",
   },
 ];
 
@@ -688,17 +688,26 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Left Text Column */}
           <div className="lg:col-span-5 space-y-6">
-            <div>
-              <button
-                type="button"
-                onClick={() => openAuthModal("signup")}
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#f4efe6] border border-[#c25e37]/30 text-xs font-semibold text-[#8c3817] hover:bg-[#eadecc] transition shadow-xs group cursor-pointer"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-[#c25e37]" />
-                <span>Get 5 designs free &bull; Instant signup</span>
-                <ArrowRight className="w-3 h-3 text-[#c25e37] group-hover:translate-x-0.5 transition" />
-              </button>
-            </div>
+            {!user ? (
+              <div>
+                <button
+                  type="button"
+                  onClick={() => openAuthModal("signup")}
+                  className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#f4efe6] border border-[#c25e37]/30 text-xs font-semibold text-[#8c3817] hover:bg-[#eadecc] transition shadow-xs group cursor-pointer"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-[#c25e37]" />
+                  <span>Get 5 designs free &bull; Instant signup</span>
+                  <ArrowRight className="w-3 h-3 text-[#c25e37] group-hover:translate-x-0.5 transition" />
+                </button>
+              </div>
+            ) : (
+              <div>
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#f4efe6] border border-[#e8e2d5] text-xs font-semibold text-[#8c3817]">
+                  <Sparkles className="w-3.5 h-3.5 text-[#c25e37]" />
+                  <span>Account Active &bull; Ready to Stage</span>
+                </div>
+              </div>
+            )}
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#1c1917] leading-[1.1]">
               Bring empty rooms to life with{" "}
@@ -717,14 +726,24 @@ export default function Home() {
                 <span>Upload Room Photograph</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
-              <button
-                type="button"
-                onClick={() => openAuthModal("signup")}
-                className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-[#ffffff] hover:bg-[#f4efe6] text-[#1c1917] border border-[#e8e2d5] font-semibold text-sm transition flex items-center justify-center gap-2"
-              >
-                <Sparkles className="w-4 h-4 text-[#c25e37]" />
-                <span>Get 5 Designs Free</span>
-              </button>
+              {!user ? (
+                <button
+                  type="button"
+                  onClick={() => openAuthModal("signup")}
+                  className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-[#ffffff] hover:bg-[#f4efe6] text-[#1c1917] border border-[#e8e2d5] font-semibold text-sm transition flex items-center justify-center gap-2"
+                >
+                  <Sparkles className="w-4 h-4 text-[#c25e37]" />
+                  <span>Get 5 Designs Free</span>
+                </button>
+              ) : (
+                <a
+                  href="#styles-carousel"
+                  className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-[#ffffff] hover:bg-[#f4efe6] text-[#1c1917] border border-[#e8e2d5] font-semibold text-sm transition flex items-center justify-center gap-2"
+                >
+                  <Sliders className="w-4 h-4 text-[#78716c]" />
+                  <span>Explore 14 Design Styles</span>
+                </a>
+              )}
             </div>
 
             {/* Accessible Metric Strip */}
