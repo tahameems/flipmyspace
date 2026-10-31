@@ -70,10 +70,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         credits_remaining: 5, // 5 Free designs granted
       };
 
-      await client
-        .from("profiles")
-        .upsert(initialProfile, { onConflict: "id" })
-        .catch(() => {});
+      try {
+        await client
+          .from("profiles")
+          .upsert(initialProfile, { onConflict: "id" });
+      } catch {
+        // Ignored
+      }
 
       setProfile(initialProfile);
     } catch {
