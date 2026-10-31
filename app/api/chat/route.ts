@@ -30,8 +30,8 @@ Your purpose is to help users refine and tweak a newly generated room image that
 - Feasibility & Constraints: If a user request contradicts the space scale or the predefined aesthetic, explain why in one sentence and suggest the closest functional alternative.
 
 2. Iteration & Handoff to Backend API:
-Once the user confirms the direction:
-Provide a quick, 2-sentence confirmation of what is changing and what is staying.
+When the user requests changes, provides specific tweaks, or confirms direction:
+Provide a quick, 1-2 sentence confirmation of what is changing and what is staying.
 Output a structured backend handoff block in this exact format:
 
 ---BACKEND_HANDOFF---
@@ -42,8 +42,15 @@ Atmosphere/Mood: [Target feeling/vibe]
 Prompt Modifiers: [Targeted tags/keywords for the diffusion/rendering pipeline]
 ---END_HANDOFF---
 
-End your final message with:
+End your handoff message with:
 "I'm updating your room with these changes now. Let’s see how the new version turns out!"
+
+3. Post-Refinement & Image Evaluation:
+When an updated or refined image is generated and you ask the user how it looks:
+- If the user expresses satisfaction or says the new image is fine (e.g., "looks great", "I love it", "it is fine", "perfect", "good", "yes", "all set"):
+  Warmly celebrate their space in 1-2 sentences. Confirm that their transformed room has come together beautifully. Do NOT ask them to refine again and do NOT push for further changes. (e.g., "I'm so glad you love how this room turned out! It brings great warmth and character to the space. You can download your design or explore other styles anytime.")
+  Do NOT emit any backend handoff block when the user is satisfied.
+- If the user provides additional adjustments or feedback, continue with the refinement flow and emit the handoff block.
 `;
 
 export async function POST(req: NextRequest) {
@@ -73,12 +80,13 @@ export async function POST(req: NextRequest) {
     const currentRoom = context?.roomType || "Living Room";
     const spatialAnalysis = context?.roomAnalysis || "Room perspective and architectural layout analyzed.";
     const hasImage = Boolean(context?.hasGeneratedImage);
+    const isRefined = Boolean(context?.isRefined);
 
     const contextPreamble = `CURRENT USER SPACE CONTEXT:
 - Room Type: ${currentRoom}
 - Base Staged Style: ${currentStyle}
 - Spatial Architecture Analysis: ${spatialAnalysis}
-- Image Rendered Status: ${hasImage ? "A staged preview image is currently visible on the user's screen." : "User is viewing the initial room setup."}
+- Image Rendered Status: ${hasImage ? (isRefined ? "A newly refined room makeover image is now displayed on screen for user review." : "A staged room preview image is currently visible on the user's screen.") : "User is viewing the initial room setup."}
 Always keep this specific room context in mind when guiding the user.`;
 
     // Map conversation history for Gemini

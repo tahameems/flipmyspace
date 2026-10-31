@@ -154,6 +154,12 @@ export default function EeraAssistant({
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
+  // Refinement & generation lifecycle tracking
+  const hasInitializedGreetingRef = useRef<boolean>(false);
+  const waitingForRefinementRef = useRef<boolean>(false);
+  const isRefinedRef = useRef<boolean>(false);
+  const prevIsRegeneratingRef = useRef<boolean>(false);
+
   // Initialize position to bottom right of viewport
   useEffect(() => {
     if (typeof window !== "undefined" && !position) {
@@ -186,6 +192,9 @@ export default function EeraAssistant({
   // Update initial message depending on whether room image is generated
   useEffect(() => {
     if (!hasGeneratedImage) {
+      hasInitializedGreetingRef.current = false;
+      isRefinedRef.current = false;
+      waitingForRefinementRef.current = false;
       setMessages([
         {
           id: "no-image-notice",
@@ -195,18 +204,40 @@ export default function EeraAssistant({
           timestamp: "Just now",
         },
       ]);
-    } else {
+    } else if (!hasInitializedGreetingRef.current) {
+      hasInitializedGreetingRef.current = true;
       setMessages([
         {
           id: "active-greeting",
           role: "assistant",
           content:
-            "Hi, I’m Eera! Take a look at your newly styled room. Please list all the changes and tweaks you'd like to make to this space in the text area below, then type 'Relive' (or press Send) to regenerate your transformed room.",
+            "Hi, I’m Eera! Take a look at your newly styled room. What would you most like to tweak or enhance in this space? Describe any changes below, and I will update your room.",
           timestamp: "Just now",
         },
       ]);
     }
   }, [hasGeneratedImage]);
+
+  // When a refined image finishes generating, check in with user whether the new image is fine
+  useEffect(() => {
+    if (prevIsRegeneratingRef.current && !isRegenerating) {
+      if (waitingForRefinementRef.current && hasGeneratedImage) {
+        waitingForRefinementRef.current = false;
+        isRefinedRef.current = true;
+
+        const checkinMessage: Message = {
+          id: `assistant-checkin-${Date.now()}`,
+          role: "assistant",
+          content:
+            "Here is your newly updated room design with your requested adjustments! Take a look—how does this new version look to you? Are you happy with this space, or is there anything else you'd like to adjust?",
+          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        };
+        setMessages((prev) => [...prev, checkinMessage]);
+        speakText("Here is your newly updated room design! How does this look to you?");
+      }
+    }
+    prevIsRegeneratingRef.current = isRegenerating;
+  }, [isRegenerating, hasGeneratedImage]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -296,7 +327,6 @@ export default function EeraAssistant({
     const rawText = (textToSend || inputText).trim();
     if (!rawText || isLoading || !hasGeneratedImage) return;
 
-    // Check if user included the keyword "Relive" or if this is the refinement prompt
     const userMessage: Message = {
       id: `user-${Date.now()}`,
       role: "user",
@@ -324,6 +354,7 @@ export default function EeraAssistant({
             style: selectedStyle,
             roomType: selectedRoomType,
             hasGeneratedImage: true,
+            isRefined: isRefinedRef.current,
             roomAnalysis: roomAnalysis,
           },
           apiKey: customApiKey || undefined,
@@ -347,12 +378,13 @@ export default function EeraAssistant({
       setMessages((prev) => [...prev, botMessage]);
       speakText(data.reply);
 
-      // If the user typed "Relive" or Eera produced a handoff, automatically trigger the refinement pipeline!
-      if (data.handoff || /relive/i.test(rawText)) {
-        const modifications = data.handoff?.modificationsRequested || rawText.replace(/relive/gi, "").trim();
-        const retain = data.handoff?.elementsToRetain || "Walls, perimeter floor plane, and natural daylight orientation";
-        const modifiers = data.handoff?.promptModifiers || `${selectedStyle}, architectural photorealism, refined interior`;
+      // If Eera produced a handoff block, automatically trigger the refinement pipeline!
+      if (data.handoff) {
+        const modifications = data.handoff.modificationsRequested || rawText;
+        const retain = data.handoff.elementsToRetain || "Walls, perimeter floor plane, and natural daylight orientation";
+        const modifiers = data.handoff.promptModifiers || `${selectedStyle}, architectural photorealism, refined interior`;
 
+        waitingForRefinementRef.current = true;
         onApplyRefinement({
           modificationsRequested: modifications,
           elementsToRetain: retain,
@@ -360,21 +392,33 @@ export default function EeraAssistant({
         });
       }
     } catch (err: any) {
-      // If offline or error, directly take the user's single prompt and trigger Relive re-generation
-      const cleanPrompt = rawText.replace(/relive/gi, "").trim();
-      onApplyRefinement({
-        modificationsRequested: cleanPrompt,
-        elementsToRetain: "Walls, flooring perspective, and window architecture",
-        promptModifiers: `${selectedStyle}, photorealistic architectural design, ${cleanPrompt}`,
-      });
+      const cleanPrompt = rawText.trim();
+      const isAffirmative = /^(it looks|looks|it's|is|i like|love|perfect|fine|good|yes|ok|okay|great|nice|amazing|superb)/i.test(cleanPrompt);
 
-      const fallbackMessage: Message = {
-        id: `assistant-refine-${Date.now()}`,
-        role: "assistant",
-        content: `I've collected all your requested changes: "${cleanPrompt}". I am re-generating your room with these updates now. Let's see how the new version turns out!`,
-        timestamp: "Just now",
-      };
-      setMessages((prev) => [...prev, fallbackMessage]);
+      if (isAffirmative) {
+        const affirmativeMsg: Message = {
+          id: `assistant-affirm-${Date.now()}`,
+          role: "assistant",
+          content: "I'm delighted you love the new makeover! Your space has come together beautifully. You can download your high-resolution render or make further tweaks anytime.",
+          timestamp: "Just now",
+        };
+        setMessages((prev) => [...prev, affirmativeMsg]);
+      } else {
+        waitingForRefinementRef.current = true;
+        onApplyRefinement({
+          modificationsRequested: cleanPrompt,
+          elementsToRetain: "Walls, flooring perspective, and window architecture",
+          promptModifiers: `${selectedStyle}, photorealistic architectural design, ${cleanPrompt}`,
+        });
+
+        const fallbackMessage: Message = {
+          id: `assistant-refine-${Date.now()}`,
+          role: "assistant",
+          content: `Updating your room with: "${cleanPrompt}". Let's see how the new version turns out!`,
+          timestamp: "Just now",
+        };
+        setMessages((prev) => [...prev, fallbackMessage]);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -383,6 +427,7 @@ export default function EeraAssistant({
   const handleApplyChanges = (messageId: string, handoff: any) => {
     if (!handoff) return;
     setAppliedHandoffId(messageId);
+    waitingForRefinementRef.current = true;
     onApplyRefinement({
       modificationsRequested: handoff.modificationsRequested || "",
       elementsToRetain: handoff.elementsToRetain || "",
@@ -652,27 +697,15 @@ export default function EeraAssistant({
                             handleSendMessage();
                           }
                         }}
-                        placeholder="List all changes you want (e.g., warmer lighting, cream linen sofa, wooden coffee table, large fiddle-leaf plant). Type 'Relive' to apply."
+                        placeholder="Describe any adjustments or tweaks you would like to make (e.g., warmer lighting, cream linen sofa, wooden coffee table, large fiddle-leaf plant)..."
                         className="w-full px-3.5 py-2.5 rounded-xl border border-[#e8e2d5] text-xs bg-[#faf7f2] focus:outline-none focus:border-[#c25e37] text-[#1c1917] resize-none leading-relaxed placeholder:text-[#a8a29e]"
                       />
                     </div>
 
                     <div className="flex items-center justify-between gap-2 pt-0.5">
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const addition = inputText.trim() ? `${inputText.trim()} - Relive` : "Warm amber lighting, lighter walnut wood, textured cushions, and indoor botanicals. Relive";
-                            setInputText(addition);
-                          }}
-                          className="px-2.5 py-1 rounded-lg bg-[#f4efe6] hover:bg-[#eadecc] text-[#8c3817] text-[11px] font-semibold border border-[#e8e2d5] transition"
-                        >
-                          + Type Relive
-                        </button>
-                        <span className="text-[10px] text-[#a8a29e] hidden sm:inline">
-                          Press Enter to send
-                        </span>
-                      </div>
+                      <span className="text-[10px] text-[#a8a29e]">
+                        Press Enter to send &bull; Shift+Enter for new line
+                      </span>
 
                       <button
                         type="submit"
@@ -683,8 +716,8 @@ export default function EeraAssistant({
                             : "bg-[#c25e37] hover:bg-[#a84e2b] text-white shadow-sm"
                         }`}
                       >
-                        <RotateCcw className="w-3.5 h-3.5" />
-                        <span>Relive Room</span>
+                        <Send className="w-3.5 h-3.5" />
+                        <span>Send Changes</span>
                       </button>
                     </div>
                   </form>

@@ -548,7 +548,6 @@ export default function Home() {
 
     setIsLoading(true);
     setErrorMessage(null);
-    setGeneratedImage(null);
     setGenerationNotice(`Refining with Eera: ${refinement.modificationsRequested}`);
     setIsQuotaExceeded(false);
     setQuotaDetails(null);
