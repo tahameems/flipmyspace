@@ -140,17 +140,17 @@ export default function AuthModal() {
             <ReliveLogo showTagline={false} />
           </div>
 
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#c25e37]/10 text-[#8c3817] text-xs font-bold border border-[#c25e37]/30 mb-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#f4efe6] text-[#8c3817] text-xs font-bold border border-[#e8e2d5] mb-2">
             <Sparkles className="w-3.5 h-3.5 text-[#c25e37]" />
-            <span>Special Offer: Get 5 Designs Free</span>
+            <span>5 Free Room Designs Included</span>
           </div>
 
           <h2 className="text-xl font-extrabold text-[#1c1917]">
-            {mode === "signup" ? "Claim Your 5 Free Room Designs" : "Welcome Back to Relive"}
+            {mode === "signup" ? "Create Your Relive Account" : "Welcome Back to Relive"}
           </h2>
           <p className="text-xs text-[#57534e] mt-1 leading-relaxed">
             {mode === "signup"
-              ? "Create your account in seconds to instantly unlock 5 complimentary AI room transformations and start designing."
+              ? "Sign up to start transforming your spaces with 5 free high-definition room makeovers."
               : "Sign in to access your saved spaces, credits, and continuing design projects."}
           </p>
         </div>
@@ -169,7 +169,7 @@ export default function AuthModal() {
                 : "border-transparent text-[#78716c] hover:text-[#1c1917]"
             }`}
           >
-            Create Account (5 Free)
+            Create Account
           </button>
           <button
             type="button"
@@ -313,7 +313,7 @@ export default function AuthModal() {
               ) : mode === "signup" ? (
                 <>
                   <Sparkles className="w-4 h-4 text-amber-200" />
-                  <span>Claim 5 Free Designs & Sign Up</span>
+                  <span>Create Account &bull; 5 Designs Free</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition" />
                 </>
               ) : (
@@ -369,7 +369,7 @@ export default function AuthModal() {
                 }}
                 className="font-bold text-[#c25e37] hover:underline"
               >
-                Get 5 Free Designs
+                Create Account
               </button>
             </p>
           )}

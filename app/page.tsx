@@ -373,6 +373,11 @@ export default function Home() {
   };
 
   const handleFile = async (file: File) => {
+    if (!user) {
+      openAuthModal("signup");
+      return;
+    }
+
     if (!file.type.match(/^image\/(jpeg|png|webp)$/)) {
       setErrorMessage("Please upload an image in JPEG, PNG, or WebP format.");
       return;
@@ -404,6 +409,11 @@ export default function Home() {
   };
 
   const loadSample = async (sampleIndex: number) => {
+    if (!user) {
+      openAuthModal("signup");
+      return;
+    }
+
     const sample = DEMO_SAMPLES[sampleIndex];
     setSelectedStyle(sample.style);
     setSelectedRoomType(sample.room);
@@ -440,6 +450,10 @@ export default function Home() {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
+    if (!user) {
+      openAuthModal("signup");
+      return;
+    }
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFile(e.dataTransfer.files[0]);
     }
@@ -460,6 +474,11 @@ export default function Home() {
   };
 
   const handleDecorate = async () => {
+    if (!user) {
+      openAuthModal("signup");
+      return;
+    }
+
     if (!imagePreview) {
       setErrorMessage("Please select or upload a room photo first.");
       return;
@@ -544,6 +563,11 @@ export default function Home() {
     elementsToRetain: string;
     promptModifiers: string;
   }) => {
+    if (!user) {
+      openAuthModal("signup");
+      return;
+    }
+
     if (!imagePreview) {
       setErrorMessage("Please select or upload a room photo first to apply refinements.");
       studioRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -654,21 +678,7 @@ export default function Home() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => loadSample(0)}
-              className="hidden lg:inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-[#57534e] bg-[#f4efe6] hover:bg-[#eadecc] rounded-xl border border-[#e8e2d5] transition"
-            >
-              <Eye className="w-3.5 h-3.5 text-[#78716c]" />
-              View Sample
-            </button>
             <UserAccountNav onScrollToStudio={scrollToStudio} />
-            <button
-              onClick={scrollToStudio}
-              className="hidden sm:inline-flex px-5 py-2.5 text-xs font-bold text-[#ffffff] bg-[#1c1917] hover:bg-[#2e2926] rounded-xl shadow-sm transition items-center gap-2"
-            >
-              <span>Stage Space</span>
-              <ArrowRight className="w-3.5 h-3.5 text-[#e8e2d5]" />
-            </button>
           </div>
         </div>
       </nav>
@@ -937,6 +947,41 @@ export default function Home() {
           </div>
         </div>
 
+        {/* Account Gate Banner for Signed-Out Visitors */}
+        {!user && (
+          <div className="mb-8 p-6 rounded-2xl bg-white border-2 border-[#c25e37]/30 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-5 animate-fade-in">
+            <div className="space-y-1">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#f4efe6] text-[#8c3817] text-xs font-bold border border-[#e8e2d5]">
+                <Sparkles className="w-3.5 h-3.5 text-[#c25e37]" />
+                <span>Account Required to Stage Spaces</span>
+              </div>
+              <h3 className="text-base sm:text-lg font-extrabold text-[#1c1917]">
+                Create a Free Account to Transform Your Rooms
+              </h3>
+              <p className="text-xs text-[#57534e] max-w-xl leading-relaxed">
+                Sign up in seconds to claim your 5 free room designs, customize typologies, and refine with your AI design assistant.
+              </p>
+            </div>
+            <div className="flex items-center gap-2.5 flex-shrink-0">
+              <button
+                type="button"
+                onClick={() => openAuthModal("signin")}
+                className="px-4 py-2.5 rounded-xl border border-[#e8e2d5] bg-white hover:bg-[#faf7f2] text-xs font-bold text-[#1c1917] transition"
+              >
+                Sign In
+              </button>
+              <button
+                type="button"
+                onClick={() => openAuthModal("signup")}
+                className="px-5 py-2.5 rounded-xl bg-[#c25e37] hover:bg-[#a84e2b] text-white text-xs font-bold shadow-sm transition flex items-center gap-2"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-200" />
+                <span>Get 5 Designs Free</span>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Global Error Notice */}
         {errorMessage && (
           <div className="mb-8 p-4 rounded-xl bg-[#ffffff] border-l-4 border-[#c25e37] border-y border-r border-[#e8e2d5] text-[#1c1917] flex items-start gap-3 shadow-sm">
@@ -1047,7 +1092,13 @@ export default function Home() {
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-                onClick={() => fileInputRef.current?.click()}
+                onClick={() => {
+                  if (!user) {
+                    openAuthModal("signup");
+                  } else {
+                    fileInputRef.current?.click();
+                  }
+                }}
                 className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all flex flex-col items-center justify-center min-h-[280px] ${
                   isDragging
                     ? "border-[#c25e37] bg-[#fbf6f0]"
@@ -1076,7 +1127,13 @@ export default function Home() {
                 />
                 <div className="absolute inset-0 bg-[#1c1917]/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                   <button
-                    onClick={() => fileInputRef.current?.click()}
+                    onClick={() => {
+                      if (!user) {
+                        openAuthModal("signup");
+                      } else {
+                        fileInputRef.current?.click();
+                      }
+                    }}
                     className="px-3.5 py-2 bg-[#ffffff] text-[#1c1917] text-xs font-semibold rounded-lg hover:bg-[#f4efe6]"
                   >
                     Change Photo
@@ -1105,26 +1162,6 @@ export default function Home() {
                 }
               }}
             />
-
-            {/* Benchmark Samples Selector */}
-            <div className="pt-2 border-t border-[#f3ede2]">
-              <span className="text-xs font-semibold text-[#78716c] block mb-2">
-                Or test with instant verified sample rooms:
-              </span>
-              <div className="grid grid-cols-2 gap-2">
-                {DEMO_SAMPLES.map((sample, idx) => (
-                  <button
-                    key={sample.id}
-                    onClick={() => loadSample(idx)}
-                    type="button"
-                    className="px-3 py-2 text-left bg-[#f8f5ee] hover:bg-[#eee8db] border border-[#e8e2d5] rounded-lg text-xs font-medium transition text-[#1c1917] flex items-center justify-between"
-                  >
-                    <span>{sample.label}</span>
-                    <ArrowRight className="w-3 h-3 text-[#78716c]" />
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
 
           {/* Steps 2 & 3: Typology & Aesthetic Selection */}
@@ -1227,27 +1264,39 @@ export default function Home() {
 
             {/* Launch Staging Button */}
             <div className="pt-2 border-t border-[#f3ede2]">
-              <button
-                onClick={handleDecorate}
-                disabled={!imagePreview || isLoading}
-                className={`w-full py-3.5 rounded-xl text-xs font-semibold tracking-wide flex items-center justify-center gap-2 transition ${
-                  !imagePreview || isLoading
-                    ? "bg-[#e8e2d5] text-[#8c8273] cursor-not-allowed"
-                    : "bg-[#c25e37] hover:bg-[#a84e2b] text-[#ffffff] font-bold cursor-pointer shadow-sm"
-                }`}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Processing Room Staging...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Stage {selectedRoomType} in {selectedStyle}</span>
-                    <ArrowRight className="w-4 h-4 ml-1" />
-                  </>
-                )}
-              </button>
+              {!user ? (
+                <button
+                  type="button"
+                  onClick={() => openAuthModal("signup")}
+                  className="w-full py-4 rounded-xl text-xs font-bold tracking-wide flex items-center justify-center gap-2 transition bg-[#c25e37] hover:bg-[#a84e2b] text-white cursor-pointer shadow-md group active:scale-[0.99]"
+                >
+                  <Sparkles className="w-4 h-4 text-amber-200" />
+                  <span>Create Free Account to Stage Space &bull; 5 Designs Free</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition" />
+                </button>
+              ) : (
+                <button
+                  onClick={handleDecorate}
+                  disabled={!imagePreview || isLoading}
+                  className={`w-full py-3.5 rounded-xl text-xs font-semibold tracking-wide flex items-center justify-center gap-2 transition ${
+                    !imagePreview || isLoading
+                      ? "bg-[#e8e2d5] text-[#8c8273] cursor-not-allowed"
+                      : "bg-[#c25e37] hover:bg-[#a84e2b] text-[#ffffff] font-bold cursor-pointer shadow-sm"
+                  }`}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Processing Room Staging...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Stage {selectedRoomType} in {selectedStyle}</span>
+                      <ArrowRight className="w-4 h-4 ml-1" />
+                    </>
+                  )}
+                </button>
+              )}
 
               {/* Progress Bar */}
               {isLoading && (
@@ -1538,6 +1587,8 @@ export default function Home() {
         onApplyRefinement={handleApplyRefinement}
         onScrollToStudio={scrollToStudio}
         isRegenerating={isLoading}
+        isLoggedIn={Boolean(user)}
+        onOpenAuth={() => openAuthModal("signup")}
       />
     </div>
   );

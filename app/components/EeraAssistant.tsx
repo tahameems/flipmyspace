@@ -125,6 +125,8 @@ interface EeraAssistantProps {
   }) => void;
   onScrollToStudio?: () => void;
   isRegenerating?: boolean;
+  isLoggedIn?: boolean;
+  onOpenAuth?: () => void;
 }
 
 export default function EeraAssistant({
@@ -136,6 +138,8 @@ export default function EeraAssistant({
   onApplyRefinement,
   onScrollToStudio,
   isRegenerating = false,
+  isLoggedIn = false,
+  onOpenAuth,
 }: EeraAssistantProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isMinimized, setIsMinimized] = useState<boolean>(false);
@@ -189,9 +193,22 @@ export default function EeraAssistant({
   // Messages state dynamically adapted to image presence
   const [messages, setMessages] = useState<Message[]>([]);
 
-  // Update initial message depending on whether room image is generated
+  // Update initial message depending on authentication and whether room image is generated
   useEffect(() => {
-    if (!hasGeneratedImage) {
+    if (!isLoggedIn) {
+      hasInitializedGreetingRef.current = false;
+      isRefinedRef.current = false;
+      waitingForRefinementRef.current = false;
+      setMessages([
+        {
+          id: "auth-required-notice",
+          role: "assistant",
+          content:
+            "Hi, I’m Eera! To stage your space, customize room typologies, and collaborate on interior design refinements, please sign in or create a free account.",
+          timestamp: "Just now",
+        },
+      ]);
+    } else if (!hasGeneratedImage) {
       hasInitializedGreetingRef.current = false;
       isRefinedRef.current = false;
       waitingForRefinementRef.current = false;
@@ -216,7 +233,7 @@ export default function EeraAssistant({
         },
       ]);
     }
-  }, [hasGeneratedImage]);
+  }, [isLoggedIn, hasGeneratedImage]);
 
   // When a refined image finishes generating, check in with user whether the new image is fine
   useEffect(() => {
@@ -563,8 +580,23 @@ export default function EeraAssistant({
                               .trim()}
                           </p>
 
+                          {/* Action button if not signed in */}
+                          {!isLoggedIn && msg.id === "auth-required-notice" && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsOpen(false);
+                                onOpenAuth?.();
+                              }}
+                              className="mt-3 w-full py-2 px-3 rounded-xl bg-[#c25e37] hover:bg-[#a84e2b] text-white text-[11px] font-bold flex items-center justify-center gap-1.5 transition shadow-sm"
+                            >
+                              <Sparkles className="w-3.5 h-3.5 text-amber-200" />
+                              <span>Sign Up &bull; Get 5 Free Designs</span>
+                            </button>
+                          )}
+
                           {/* Action button if room image is not generated yet */}
-                          {!hasGeneratedImage && msg.id === "no-image-notice" && (
+                          {isLoggedIn && !hasGeneratedImage && msg.id === "no-image-notice" && (
                             <button
                               type="button"
                               onClick={() => {
@@ -656,7 +688,28 @@ export default function EeraAssistant({
 
               {/* Multi-line Prompt Textarea Area */}
               <div className="p-3.5 bg-white border-t border-[#e8e2d5]">
-                {!hasGeneratedImage ? (
+                {!isLoggedIn ? (
+                  <div className="p-3 rounded-xl bg-[#faf7f2] border border-[#e8e2d5] text-center space-y-2">
+                    <div className="flex items-center justify-center gap-1.5 text-xs font-semibold text-[#8c3817]">
+                      <Lock className="w-3.5 h-3.5 text-[#c25e37]" />
+                      <span>Account Required to Use Assistant</span>
+                    </div>
+                    <p className="text-[11px] text-[#57534e] leading-relaxed">
+                      Sign in or create a free account to unlock Eera and get 5 free room transformations.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsOpen(false);
+                        onOpenAuth?.();
+                      }}
+                      className="px-4 py-1.5 rounded-lg bg-[#c25e37] hover:bg-[#a84e2b] text-white text-[11px] font-semibold transition inline-flex items-center gap-1.5 shadow-xs"
+                    >
+                      <Sparkles className="w-3 h-3 text-amber-200" />
+                      <span>Sign In / Sign Up</span>
+                    </button>
+                  </div>
+                ) : !hasGeneratedImage ? (
                   <div className="p-3 rounded-xl bg-[#faf7f2] border border-[#e8e2d5] text-center space-y-2">
                     <div className="flex items-center justify-center gap-1.5 text-xs font-semibold text-[#8c3817]">
                       <Lock className="w-3.5 h-3.5 text-[#c25e37]" />

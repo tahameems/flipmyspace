@@ -282,10 +282,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const deductCredit = async (): Promise<boolean> => {
-    if (!profile) return true; // allow preview if not logged in or unlimited
-    if (profile.credits_remaining <= 0) {
-      return false; // No credits left
-    }
+    // Uncapped generation: users can generate as many designs as they wish
+    if (!profile) return true;
 
     const newCredits = Math.max(0, profile.credits_remaining - 1);
     setProfile((prev) => (prev ? { ...prev, credits_remaining: newCredits } : null));
